@@ -1,0 +1,21 @@
+{
+    "public": false,
+    "github": {
+        "enabled": false
+    },
+    "git": {
+        "deploymentEnabled": false
+    },
+    "redirects": [
+        {
+            "source": "/index.html",
+            "destination": "/",
+            "permanent": true
+        },
+        {
+            "source": "/discord",
+            "destination": "https://discord.gg/4R568nZgsT",
+            "permanent": true
+        }
+    ]
+}

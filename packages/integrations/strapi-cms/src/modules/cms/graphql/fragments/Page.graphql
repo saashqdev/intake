@@ -1,0 +1,41 @@
+fragment Page on Page {
+    documentId
+    slug
+    protected
+    locale
+    createdAt
+    updatedAt
+    publishedAt
+    documentId
+    hasOwnTitle
+    SEO {
+        ...Seo
+    }
+    parent {
+        slug
+        SEO {
+            title
+        }
+        parent {
+            slug
+            SEO {
+                title
+            }
+            parent {
+                slug
+                SEO {
+                    title
+                }
+            }
+        }
+    }
+    template {
+        __typename
+        ... on ComponentTemplatesOneColumn {
+            ...OneColumnTemplate
+        }
+        ... on ComponentTemplatesTwoColumn {
+            ...TwoColumnTemplate
+        }
+    }
+}

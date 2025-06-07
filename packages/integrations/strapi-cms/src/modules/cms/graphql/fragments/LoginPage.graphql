@@ -1,0 +1,23 @@
+fragment LoginPage on LoginPage {
+    createdAt
+    updatedAt
+    publishedAt
+    signIn
+    subtitle
+    title
+    providersLabel
+    providersTitle
+    username {
+        ...FormFieldComponent
+    }
+    password {
+        ...FormFieldComponent
+    }
+    image {
+        ...Media
+    }
+    SEO {
+        ...Seo
+    }
+    invalidCredentials
+}
