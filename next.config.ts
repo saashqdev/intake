@@ -4,6 +4,7 @@ import { withPayload } from '@payloadcms/next/withPayload'
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ['demo.gointake.ca'],
   // This will rewrite the events to posthog endpoint
   async rewrites() {
     return [
