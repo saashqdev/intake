@@ -102,7 +102,7 @@ export const databaseOptions = [
 ]
 
 export const INTAKE_CONFIG = {
-  URL: 'https://intake.sh',
+  URL: 'https://demo.gointake.ca',
   AUTH_SLUG: 'users',
 }
 

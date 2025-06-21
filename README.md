@@ -7,12 +7,6 @@ while giving you full control over your infrastructure and data.
 
 ## Self Hosting
 
-### Railway
-
-You can deploy inTake on Railway using the button below.
-
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/template/NNuPfr?referralCode=I9okFq)
-
 ### Docker
 
 You can deploy inTake as docker-image on your server, follow this guide👇
@@ -21,7 +15,7 @@ You can deploy inTake as docker-image on your server, follow this guide👇
 
 1. git
 2. docker
-3. mongodb
+3. postgres
 4. redis
 
 #### Process
@@ -38,35 +32,31 @@ git clone https://github.com/saashqdev/intake intake
 cd intake
 ```
 
-3. create a mongodb instance
+3. create a postgres instance
 
-- create mongodb instance on
-  [Atlas](https://www.mongodb.com/products/platform/atlas-database),
-  [Railway](https://railway.com/dashboard) or
+- create postgres instance on [Railway](https://railway.com/dashboard) or
   [ContentQL](https://contentql.io/dashboard/create-new-project) and copy the
   url
-- or run mongodb docker-image
+- or run postgres docker-image
 
 ```bash
-# pull the mongodb docker image
-docker pull mongo
+# pull the postgres docker image
+docker pull postgres
 
-# run mongodb with a attached volume & exposing port so we can connect locally
-# change the username, password by changing MONGO_INITDB_ROOT_USERNAME, MONGO_INITDB_ROOT_PASSWORD as per your need
+# run postgres with a attached volume & exposing port so we can connect locally
+# change the username, password by changing POSTGRES_USER, POSTGRES_PASSWORD as per your need
 docker run -d \
-  -v mongo-data:/data/db \
-  -p 27017:27017 \
-  --name my-mongo \
-  -e MONGO_INITDB_ROOT_USERNAME=admin \
-  -e MONGO_INITDB_ROOT_PASSWORD=secretpassword \
-  mongo
+  -v pgdata:/var/lib/postgresql/data \
+  -p 5432:5432 \
+  --name my-postgres \
+  -e POSTGRES_USER=admin \
+  -e POSTGRES_PASSWORD=secretpassword \
+  postgres
 ```
 
 4. create a redis instance
 
-- create redis instance on
-  [Atlas](https://www.mongodb.com/products/platform/atlas-database),
-  [Railway](https://railway.com/dashboard) or
+- create redis instance on [Railway](https://railway.com/dashboard) or
   [ContentQL](https://contentql.io/dashboard/create-new-project) and copy the
   url
 - or run redis docker-image
@@ -95,10 +85,10 @@ docker run -d \
 > don't use this format ❌ `https://mydomain.com/`
 
 ```bash
-# pass the mongodb, redis database-url's as build-arguments
+# pass the postgres, redis database-url's as build-arguments
 # replace NEXT_PUBLIC_WEBSITE_URL with your domain
 docker build \
-  --build-arg DATABASE_URI="mongodb://username:password@localhost:27017/intake?authSource=admin" \
+  --build-arg DATABASE_URI="postgres://postgres:password@localhost:5432/intake" \
   --build-arg REDIS_URI="redis://:password@localhost:6379" \
   --build-arg PAYLOAD_SECRET="1781c9a00336ffa7fdf27ce7" \
   --build-arg NEXT_PUBLIC_WEBSITE_URL="localhost:3000" \
@@ -108,10 +98,10 @@ docker build \
 4. Run the docker-image
 
 ```bash
-# pass the mongodb, redis database-url's as environment variables
+# pass the postgres, redis database-url's as environment variables
 # replace NEXT_PUBLIC_WEBSITE_URL with your domain
 docker run -d -p 3000:3000 \
-  -e DATABASE_URI="mongodb://username:password@localhost:27017/intake?authSource=admin" \
+  -e DATABASE_URI="postgres://postgres:password@localhost:5432/intake" \
   -e REDIS_URI="redis://:password@localhost:6379" \
   -e PAYLOAD_SECRET="1781c9a00336ffa7fdf27ce7"
   -e NEXT_PUBLIC_WEBSITE_URL="localhost:3000"

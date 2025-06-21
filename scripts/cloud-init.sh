@@ -29,7 +29,7 @@ cat << "EOF" > /etc/motd
 A lightweight developer PaaS  
 powered by Dokku
 
-👉 https://intake.sh
+👉 https://demo.gointake.ca
 ==========================================
 EOF
 

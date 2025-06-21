@@ -7,8 +7,8 @@ export function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
   const segments = pathname.split('/') // ['', 'acme', 'dashboard']
 
-  // Check if domain is app.intake.sh and redirect auth pages
-  if (hostname === 'app.intake.sh') {
+  // Check if domain is app.gointake.ca and redirect auth pages
+  if (hostname === 'app.gointake.ca') {
     if (pathname === '/sign-in') {
       return NextResponse.redirect(`${INTAKE_CONFIG.URL}/sign-in`)
     }

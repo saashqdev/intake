@@ -419,7 +419,7 @@ export const getAllTemplatesAction = protectedClient
     const { userTenant, payload } = ctx
 
     if (type === 'official') {
-      const res = await fetch('https://intake.sh/api/templates')
+      const res = await fetch('https://demo.gointake.ca/api/templates')
 
       if (!res.ok) {
         throw new Error('Failed to fetch official templates')
@@ -645,7 +645,9 @@ export const getOfficialTemplateByIdAction = publicClient
   .action(async ({ clientInput }) => {
     const { templateId } = clientInput
 
-    const res = await fetch(`https://intake.sh/api/templates/${templateId}`)
+    const res = await fetch(
+      `https://demo.gointake.ca/api/templates/${templateId}`,
+    )
 
     if (!res.ok) {
       throw new Error('Failed to fetch template details')

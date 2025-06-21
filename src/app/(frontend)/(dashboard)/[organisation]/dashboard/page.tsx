@@ -82,10 +82,10 @@ const SuspendedDashboard = async ({
                   on Claim Rewards to continue on{' '}
                   <a
                     className='inline-flex items-center text-foreground underline'
-                    href='https://intake.sh/dashboard'
+                    href='https://demo.gointake.ca/dashboard'
                     target='_blank'
                     rel='noopener noreferrer'>
-                    intake.sh
+                    demo.gointake.ca
                     <ArrowUpRight size={16} />
                   </a>
                 </p>

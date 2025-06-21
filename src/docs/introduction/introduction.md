@@ -31,5 +31,5 @@ inTake has an active community of users and contributors. You can find help and
 support in the following places:
 
 - [Discord Community](https://discord.gg/XTZcmmUG)
-- [Documentation](https://intake.sh/docs)
+- [Documentation](https://demo.gointake.ca/docs)
 - [GitHub Issues](https://github.com/saashqdev/inTake/issues)

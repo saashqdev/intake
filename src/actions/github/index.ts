@@ -10,7 +10,7 @@ export const getGithubStarsAction = publicClient
   })
   .action(async () => {
     const res = await axios.get(
-      'https://intake.sh/api/globals/github?depth=2&draft=false',
+      'https://demo.gointake.ca/api/globals/github?depth=2&draft=false',
     )
 
     const stars = res.data.githubStars ?? 0
