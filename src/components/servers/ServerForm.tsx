@@ -32,13 +32,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cloudProvidersList } from '@/lib/integrationList'
 import { CloudProviderAccount, SecurityGroup, SshKey } from '@/payload-types'
@@ -630,7 +623,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
 
       <div className='space-y-6'>
         {/* inTake Section */}
-        <Card className='border shadow-sm'>
+        {/*         <Card className='border shadow-sm'>
           <CardHeader className='pb-0'>
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-3'>
@@ -662,10 +655,10 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
               )}
             </div>
           </CardHeader>
-          {/* <CardContent className='p-6'>
+          <CardContent className='p-6'>
             {renderINTakeAccountSection()}
-          </CardContent> Dave commented */}
-        </Card>
+          </CardContent>
+        </Card> Dave commented */}
 
         {/* Cloud Providers Section */}
         <Card className='border shadow-sm'>
