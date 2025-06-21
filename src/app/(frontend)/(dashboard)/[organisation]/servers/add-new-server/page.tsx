@@ -2,7 +2,6 @@ import LayoutClient from '../../layout.client'
 
 import { getINTakePlansAction, getIntakeUser } from '@/actions/cloud/inTake'
 import { getAddServerDetails } from '@/actions/pages/server'
-import IntakeCloudDrawer from '@/components/Integrations/inTake/Drawer'
 import ServerForm from '@/components/servers/ServerForm'
 
 const SuspendedAddNewServerPage = async () => {
@@ -25,7 +24,7 @@ const SuspendedAddNewServerPage = async () => {
         inTakeUser={inTakeDetails?.data?.user}
       />
 
-      <IntakeCloudDrawer />
+      {/* <IntakeCloudDrawer /> Dave commented */}
     </>
   )
 }
