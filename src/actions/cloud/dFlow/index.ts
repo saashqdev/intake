@@ -3,7 +3,7 @@
 import axios from 'axios'
 import { revalidatePath } from 'next/cache'
 
-import { DFLOW_CONFIG } from '@/lib/constants'
+import { INTAKE_CONFIG } from '@/lib/constants'
 import { protectedClient } from '@/lib/safe-action'
 import { CloudProviderAccount } from '@/payload-types'
 
@@ -11,16 +11,16 @@ import { VpsPlan } from './types'
 import {
   checkConnectionSchema,
   checkPaymentMethodSchema,
-  connectDFlowAccountSchema,
+  connectINTakeAccountSchema,
   createSshKeysAndVpsActionSchema,
-  deleteDFlowAccountSchema,
+  deleteINTakeAccountSchema,
 } from './validator'
 
-export const connectDFlowAccountAction = protectedClient
+export const connectINTakeAccountAction = protectedClient
   .metadata({
     actionName: 'connectAWSAccountAction',
   })
-  .schema(connectDFlowAccountSchema)
+  .schema(connectINTakeAccountSchema)
   .action(async ({ clientInput, ctx }) => {
     const { accessToken, name, id } = clientInput
 
@@ -32,8 +32,8 @@ export const connectDFlowAccountAction = protectedClient
         collection: 'cloudProviderAccounts',
         id,
         data: {
-          type: 'dFlow',
-          dFlowDetails: {
+          type: 'inTake',
+          inTakeDetails: {
             accessToken,
           },
           name,
@@ -43,8 +43,8 @@ export const connectDFlowAccountAction = protectedClient
       response = await payload.create({
         collection: 'cloudProviderAccounts',
         data: {
-          type: 'dFlow',
-          dFlowDetails: {
+          type: 'inTake',
+          inTakeDetails: {
             accessToken,
           },
           tenant: userTenant.tenant,
@@ -58,15 +58,15 @@ export const connectDFlowAccountAction = protectedClient
     return response
   })
 
-export const getDFlowPlansAction = protectedClient
+export const getINTakePlansAction = protectedClient
   .metadata({
-    actionName: 'getDFlowPlansAction',
+    actionName: 'getINTakePlansAction',
   })
   .action(async () => {
     let vpsPlans: VpsPlan[] = []
 
-    if (DFLOW_CONFIG.URL) {
-      const response = await axios.get(`${DFLOW_CONFIG.URL}/api/vpsPlans`, {})
+    if (INTAKE_CONFIG.URL) {
+      const response = await axios.get(`${INTAKE_CONFIG.URL}/api/vpsPlans`, {})
 
       vpsPlans = response?.data?.docs ?? []
     }
@@ -83,35 +83,35 @@ export const createSshKeysAndVpsAction = protectedClient
     const { accountId, sshKeyIds, vps } = clientInput
     const { userTenant, payload, user } = ctx
     const { addCreateVpsQueue } = await import(
-      '@/queues/dFlow/addCreateVpsQueue'
+      '@/queues/inTake/addCreateVpsQueue'
     )
 
     console.log('Starting VPS creation process...')
 
-    // 1. Verify dFlow account
-    const { docs: dFlowAccounts } = await payload.find({
+    // 1. Verify inTake account
+    const { docs: inTakeAccounts } = await payload.find({
       collection: 'cloudProviderAccounts',
       pagination: false,
       where: {
         and: [
           { id: { equals: accountId } },
-          { type: { equals: 'dFlow' } },
+          { type: { equals: 'inTake' } },
           { 'tenant.slug': { equals: userTenant.tenant?.slug } },
         ],
       },
     })
 
-    console.dir({ dFlowAccounts }, { depth: Infinity })
+    console.dir({ inTakeAccounts }, { depth: Infinity })
 
-    if (!dFlowAccounts?.length) {
-      throw new Error('No dFlow account found with the specified ID')
+    if (!inTakeAccounts?.length) {
+      throw new Error('No inTake account found with the specified ID')
     }
 
-    const dFlowAccount = dFlowAccounts[0]
-    const token = dFlowAccount.dFlowDetails?.accessToken
+    const inTakeAccount = inTakeAccounts[0]
+    const token = inTakeAccount.inTakeDetails?.accessToken
 
     if (!token) {
-      throw new Error('Invalid dFlow account: No access token found')
+      throw new Error('Invalid inTake account: No access token found')
     }
 
     // 2. Check payment method and balance
@@ -151,7 +151,7 @@ export const createSshKeysAndVpsAction = protectedClient
       sshKeys,
       vps,
       accountDetails: {
-        id: dFlowAccount.id,
+        id: inTakeAccount.id,
         accessToken: token,
       },
       tenant: userTenant.tenant,
@@ -163,7 +163,7 @@ export const createSshKeysAndVpsAction = protectedClient
       return {
         success: true,
         data: {
-          accountId: dFlowAccount.id,
+          accountId: inTakeAccount.id,
           vpsName: vps.displayName,
           estimatedCost: vps.estimatedCost,
         },
@@ -183,13 +183,13 @@ export const checkPaymentMethodAction = protectedClient
     const { userTenant, payload, user } = ctx
 
     if (!token) {
-      throw new Error('Invalid dFlow account: No access token found')
+      throw new Error('Invalid inTake account: No access token found')
     }
 
     // Fetch user wallet balance
-    const userResponse = await axios.get(`${DFLOW_CONFIG.URL}/api/users`, {
+    const userResponse = await axios.get(`${INTAKE_CONFIG.URL}/api/users`, {
       headers: {
-        Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+        Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${token}`,
       },
     })
 
@@ -199,10 +199,10 @@ export const checkPaymentMethodAction = protectedClient
 
     // Fetch user's payment cards
     const cardsResponse = await axios.get(
-      `${DFLOW_CONFIG.URL}/api/cards/count`,
+      `${INTAKE_CONFIG.URL}/api/cards/count`,
       {
         headers: {
-          Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+          Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${token}`,
         },
       },
     )
@@ -234,9 +234,9 @@ export const checkAccountConnection = protectedClient
         }
       }
 
-      const userResponse = await axios.get(`${DFLOW_CONFIG.URL}/api/users`, {
+      const userResponse = await axios.get(`${INTAKE_CONFIG.URL}/api/users`, {
         headers: {
-          Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+          Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${token}`,
         },
         timeout: 10000, // 10 second timeout
       })
@@ -247,7 +247,7 @@ export const checkAccountConnection = protectedClient
         return {
           isConnected: false,
           user: null,
-          error: 'No user data found or invalid response from dFlow API',
+          error: 'No user data found or invalid response from inTake API',
         }
       }
 
@@ -256,7 +256,7 @@ export const checkAccountConnection = protectedClient
         return {
           isConnected: false,
           user: usersData,
-          error: `Account status is ${usersData.status}. Please ensure your dFlow account is active.`,
+          error: `Account status is ${usersData.status}. Please ensure your inTake account is active.`,
         }
       }
 
@@ -266,7 +266,7 @@ export const checkAccountConnection = protectedClient
         error: null,
       }
     } catch (error) {
-      console.error('dFlow account connection check failed:', error)
+      console.error('inTake account connection check failed:', error)
 
       // Handle specific error types
       if (axios.isAxiosError(error)) {
@@ -280,7 +280,8 @@ export const checkAccountConnection = protectedClient
               return {
                 isConnected: false,
                 user: null,
-                error: 'Invalid access token. Please check your dFlow API key.',
+                error:
+                  'Invalid access token. Please check your inTake API key.',
               }
             case 403:
               return {
@@ -293,7 +294,7 @@ export const checkAccountConnection = protectedClient
               return {
                 isConnected: false,
                 user: null,
-                error: 'dFlow API endpoint not found. Please try again later.',
+                error: 'inTake API endpoint not found. Please try again later.',
               }
             case 429:
               return {
@@ -309,7 +310,7 @@ export const checkAccountConnection = protectedClient
                 isConnected: false,
                 user: null,
                 error:
-                  'dFlow service is temporarily unavailable. Please try again later.',
+                  'inTake service is temporarily unavailable. Please try again later.',
               }
             default:
               return {
@@ -332,7 +333,7 @@ export const checkAccountConnection = protectedClient
             isConnected: false,
             user: null,
             error:
-              'Connection timeout. The dFlow service may be slow or unavailable.',
+              'Connection timeout. The inTake service may be slow or unavailable.',
           }
         }
       }
@@ -342,16 +343,16 @@ export const checkAccountConnection = protectedClient
         isConnected: false,
         user: null,
         error:
-          'Failed to connect to dFlow. Please check your account details and try again.',
+          'Failed to connect to inTake. Please check your account details and try again.',
       }
     }
   })
 
-export const deleteDFlowAccountAction = protectedClient
+export const deleteINTakeAccountAction = protectedClient
   .metadata({
-    actionName: 'deleteDFlowAccountSchema',
+    actionName: 'deleteINTakeAccountSchema',
   })
-  .schema(deleteDFlowAccountSchema)
+  .schema(deleteINTakeAccountSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const { payload } = ctx
@@ -367,37 +368,37 @@ export const deleteDFlowAccountAction = protectedClient
     return response
   })
 
-export const getDflowUser = protectedClient
+export const getIntakeUser = protectedClient
   .metadata({
-    actionName: 'getDflowUser',
+    actionName: 'getIntakeUser',
   })
   .action(async ({ ctx }) => {
     const { payload, userTenant } = ctx
 
-    const { docs: dflowAccounts } = await payload.find({
+    const { docs: intakeAccounts } = await payload.find({
       collection: 'cloudProviderAccounts',
       pagination: false,
       where: {
         and: [
-          { type: { equals: 'dFlow' } },
+          { type: { equals: 'inTake' } },
           { 'tenant.slug': { equals: userTenant.tenant?.slug } },
         ],
       },
     })
 
-    if (!dflowAccounts || dflowAccounts.length === 0) {
-      throw new Error('No connected dFlow accounts found')
+    if (!intakeAccounts || intakeAccounts.length === 0) {
+      throw new Error('No connected inTake accounts found')
     }
 
-    const dflowAccount = dflowAccounts?.[0]
-    const token = dflowAccount.dFlowDetails?.accessToken
+    const intakeAccount = intakeAccounts?.[0]
+    const token = intakeAccount.inTakeDetails?.accessToken
 
     let user = null
 
     try {
-      const response = await axios.get(`${DFLOW_CONFIG.URL}/api/users`, {
+      const response = await axios.get(`${INTAKE_CONFIG.URL}/api/users`, {
         headers: {
-          Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+          Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${token}`,
         },
         timeout: 10000,
       })
@@ -405,9 +406,9 @@ export const getDflowUser = protectedClient
       user = response?.data?.docs?.[0]
     } catch (error) {
       console.log(
-        `Failed to fetch user details with account: ${dflowAccount.id}`,
+        `Failed to fetch user details with account: ${intakeAccount.id}`,
       )
     }
 
-    return { user, account: dflowAccount }
+    return { user, account: intakeAccount }
   })

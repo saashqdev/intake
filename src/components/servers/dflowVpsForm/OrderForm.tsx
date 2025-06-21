@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { SubmitHandler, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
 
-import { createSshKeysAndVpsAction } from '@/actions/cloud/dFlow'
+import { createSshKeysAndVpsAction } from '@/actions/cloud/inTake'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dialog'
 import { Form } from '@/components/ui/form'
 
-import { useDflowVpsForm } from './DflowVpsFormProvider'
+import { useIntakeVpsForm } from './IntakeVpsFormProvider'
 import { BackupOptionsSection } from './form-fields/BackupOptionsSection'
 import { DisplayNameField } from './form-fields/DisplayNameField'
 import { ImageSelection } from './form-fields/ImageSelection'
@@ -29,11 +29,11 @@ import { StorageTypeField } from './form-fields/StorageTypeField'
 import { TermLengthSection } from './form-fields/TermLengthSection'
 import type { VpsFormData } from './schemas'
 
-export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
+export const OrderForm = ({ inTakeUser }: { inTakeUser: any }) => {
   const form = useFormContext<VpsFormData>()
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { pricing, selectedAccount, vpsPlan } = useDflowVpsForm()
+  const { pricing, selectedAccount, vpsPlan } = useIntakeVpsForm()
 
   const {
     execute: executeCreateSshKeysAndVpsAction,
@@ -97,7 +97,7 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
   }
 
   const onboardingCompleted =
-    !!dFlowUser?.discord?.accountId && !!dFlowUser?.acceptedTermsDate
+    !!inTakeUser?.discord?.accountId && !!inTakeUser?.acceptedTermsDate
 
   return (
     <>
@@ -130,7 +130,7 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
                 attach Discord account & accept our Terms of Service{' '}
                 <a
                   className='inline-block text-foreground underline'
-                  href='https://dflow.sh/dashboard?onboarding=true'
+                  href='https://intake.sh/dashboard?onboarding=true'
                   rel='no-referrer no-opener'
                   target='_blank'>
                   link

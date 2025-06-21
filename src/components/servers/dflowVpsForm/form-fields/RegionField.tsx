@@ -1,4 +1,4 @@
-import { useDflowVpsForm } from '../DflowVpsFormProvider'
+import { useIntakeVpsForm } from '../IntakeVpsFormProvider'
 import { formatValue } from '../utils'
 import { useFormContext } from 'react-hook-form'
 
@@ -21,7 +21,7 @@ import {
 
 export const RegionField = () => {
   const { control, setValue, watch } = useFormContext()
-  const { vpsPlan } = useDflowVpsForm()
+  const { vpsPlan } = useIntakeVpsForm()
 
   return (
     <div className='mb-6'>

@@ -36,7 +36,7 @@ import { Input } from '@/components/ui/input'
 import { CloudProviderAccount } from '@/payload-types'
 
 type RefetchType = (input: {
-  type: 'aws' | 'azure' | 'gcp' | 'digitalocean' | 'dFlow'
+  type: 'aws' | 'azure' | 'gcp' | 'digitalocean' | 'inTake'
 }) => void
 
 type ConnectionStatus = {

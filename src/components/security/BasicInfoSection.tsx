@@ -31,7 +31,7 @@ export const handleGenerateName = (): string => {
   const numberDictionary = NumberDictionary.generate({ min: 100, max: 999 })
 
   const nameConfig: Config = {
-    dictionaries: [['dFlow'], adjectives, animals, numberDictionary],
+    dictionaries: [['inTake'], adjectives, animals, numberDictionary],
     separator: '-',
     length: 4,
     style: 'lowerCase',

@@ -1,4 +1,4 @@
-import { useDflowVpsForm } from '../DflowVpsFormProvider'
+import { useIntakeVpsForm } from '../IntakeVpsFormProvider'
 import { VpsFormData } from '../schemas'
 import { Key, Plus } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
@@ -15,7 +15,7 @@ import { MultiSelect } from '@/components/ui/multi-select'
 
 export const SshKeySection = () => {
   const form = useFormContext<VpsFormData>()
-  const { sshKeys } = useDflowVpsForm()
+  const { sshKeys } = useIntakeVpsForm()
 
   return (
     <div className='mb-6'>

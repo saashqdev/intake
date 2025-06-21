@@ -1,4 +1,4 @@
-import { useDflowVpsForm } from '../DflowVpsFormProvider'
+import { useIntakeVpsForm } from '../IntakeVpsFormProvider'
 import { formatValue } from '../utils'
 import { CheckCircle } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
 export const ImageSelection = () => {
   const form = useFormContext()
-  const { vpsPlan } = useDflowVpsForm()
+  const { vpsPlan } = useIntakeVpsForm()
 
   const selectedImageId = form.watch('image.imageId')
 

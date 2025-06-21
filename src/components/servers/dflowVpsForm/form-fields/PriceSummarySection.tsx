@@ -1,18 +1,18 @@
 'use client'
 
-import { useDflowVpsForm } from '../DflowVpsFormProvider'
+import { useIntakeVpsForm } from '../IntakeVpsFormProvider'
 import { formatValue } from '../utils'
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 
-import { getDflowUser } from '@/actions/cloud/dFlow'
+import { getIntakeUser } from '@/actions/cloud/inTake'
 import { Separator } from '@/components/ui/separator'
 
 export const PriceSummarySection = () => {
-  const { vpsPlan, pricing } = useDflowVpsForm()
+  const { vpsPlan, pricing } = useIntakeVpsForm()
   const form = useFormContext()
-  const { execute, result } = useAction(getDflowUser)
+  const { execute, result } = useAction(getIntakeUser)
 
   useEffect(() => {
     execute()

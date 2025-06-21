@@ -9,9 +9,9 @@ import { z } from 'zod'
 
 import {
   checkAccountConnection,
-  connectDFlowAccountAction,
-} from '@/actions/cloud/dFlow'
-import { connectDFlowAccountSchema } from '@/actions/cloud/dFlow/validator'
+  connectINTakeAccountAction,
+} from '@/actions/cloud/inTake'
+import { connectINTakeAccountSchema } from '@/actions/cloud/inTake/validator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import SecretContent from '@/components/ui/blur-reveal'
 import { Button } from '@/components/ui/button'
@@ -36,7 +36,7 @@ import { Input } from '@/components/ui/input'
 import { CloudProviderAccount } from '@/payload-types'
 
 type RefetchType = (input: {
-  type: 'aws' | 'azure' | 'gcp' | 'digitalocean' | 'dFlow'
+  type: 'aws' | 'azure' | 'gcp' | 'digitalocean' | 'inTake'
 }) => void
 
 type ConnectionStatus = {
@@ -44,7 +44,7 @@ type ConnectionStatus = {
   error?: string
 } | null
 
-const DFlowForm = ({
+const INTakeForm = ({
   children,
   account,
   refetch,
@@ -65,11 +65,11 @@ const DFlowForm = ({
   const canAddAccount = account || existingAccountsCount === 0
 
   const { execute: connectAccount, isPending: connectingAccount } = useAction(
-    connectDFlowAccountAction,
+    connectINTakeAccountAction,
     {
       onSuccess: ({ data }) => {
         if (data?.id) {
-          refetch?.({ type: 'dFlow' })
+          refetch?.({ type: 'inTake' })
           dialogFooterRef.current?.click()
         }
       },
@@ -83,7 +83,7 @@ const DFlowForm = ({
             ([field, messages]) => {
               if (Array.isArray(messages) && messages.length > 0) {
                 form.setError(
-                  field as keyof z.infer<typeof connectDFlowAccountSchema>,
+                  field as keyof z.infer<typeof connectINTakeAccountSchema>,
                   {
                     message: messages[0],
                   },
@@ -114,10 +114,10 @@ const DFlowForm = ({
       },
     })
 
-  const form = useForm<z.infer<typeof connectDFlowAccountSchema>>({
-    resolver: zodResolver(connectDFlowAccountSchema),
+  const form = useForm<z.infer<typeof connectINTakeAccountSchema>>({
+    resolver: zodResolver(connectINTakeAccountSchema),
     defaultValues: account
-      ? { name: account.name, accessToken: account.dFlowDetails?.accessToken }
+      ? { name: account.name, accessToken: account.inTakeDetails?.accessToken }
       : {
           accessToken: '',
           name: '',
@@ -147,7 +147,7 @@ const DFlowForm = ({
     }
   }
 
-  function onSubmit(values: z.infer<typeof connectDFlowAccountSchema>) {
+  function onSubmit(values: z.infer<typeof connectINTakeAccountSchema>) {
     // Clear previous validation errors
     setValidationError(null)
 
@@ -179,10 +179,10 @@ const DFlowForm = ({
       <DialogContent className='sm:max-w-lg'>
         <DialogHeader className='space-y-3'>
           <DialogTitle className='text-xl'>
-            {account ? 'Edit dFlow Account' : 'Connect dFlow Account'}
+            {account ? 'Edit inTake Account' : 'Connect inTake Account'}
           </DialogTitle>
           <DialogDescription className='text-sm text-muted-foreground'>
-            Connect your dFlow account to deploy servers and access cloud
+            Connect your inTake account to deploy servers and access cloud
             features.
           </DialogDescription>
         </DialogHeader>
@@ -216,7 +216,7 @@ const DFlowForm = ({
                     <FormControl>
                       <Input
                         {...field}
-                        placeholder='My dFlow Account'
+                        placeholder='My inTake Account'
                         className='h-10'
                         onChange={e => {
                           field.onChange(e)
@@ -244,7 +244,7 @@ const DFlowForm = ({
                       <SecretContent defaultHide={!!account}>
                         <Input
                           {...field}
-                          placeholder='Enter your dFlow access token'
+                          placeholder='Enter your inTake access token'
                           className='h-10'
                           onChange={e => {
                             field.onChange(e)
@@ -304,7 +304,7 @@ const DFlowForm = ({
                 <Alert>
                   <RefreshCw className='h-4 w-4 animate-spin' />
                   <AlertDescription>
-                    Verifying your dFlow account connection...
+                    Verifying your inTake account connection...
                   </AlertDescription>
                 </Alert>
               )}
@@ -320,7 +320,7 @@ const DFlowForm = ({
                         Connection verified
                       </p>
                       <p className='text-xs text-emerald-400'>
-                        Your dFlow account is ready to use
+                        Your inTake account is ready to use
                       </p>
                     </div>
                   </div>
@@ -371,4 +371,4 @@ const DFlowForm = ({
   )
 }
 
-export default DFlowForm
+export default INTakeForm

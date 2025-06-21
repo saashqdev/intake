@@ -16,7 +16,7 @@ export default function GlobalError({
   useEffect(() => {
     if (
       process.env.NODE_ENV === 'development' ||
-      env.NEXT_PUBLIC_DFLOW_TELEMETRY_DISABLED
+      env.NEXT_PUBLIC_INTAKE_TELEMETRY_DISABLED
     ) {
       return
     }

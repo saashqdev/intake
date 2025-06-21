@@ -1,4 +1,4 @@
-import { VpsPlan } from '@/actions/cloud/dFlow/types'
+import { VpsPlan } from '@/actions/cloud/inTake/types'
 
 export const HeaderSection = ({ vpsPlan }: { vpsPlan: VpsPlan }) => {
   return (

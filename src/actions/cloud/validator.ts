@@ -1,9 +1,9 @@
 import { z } from 'zod'
 
 export const cloudProviderAccountsSchema = z.object({
-  type: z.enum(['aws', 'azure', 'digitalocean', 'gcp', 'dFlow']),
+  type: z.enum(['aws', 'azure', 'digitalocean', 'gcp', 'inTake']),
 })
 
-export const syncDflowServersSchema = z.object({
+export const syncIntakeServersSchema = z.object({
   id: z.string(),
 })

@@ -13,11 +13,11 @@ const EmailHeader: React.FC = () => {
             src={`${env.NEXT_PUBLIC_WEBSITE_URL}/favicon.ico`}
             width='40'
             height='40'
-            alt='dFlow'
+            alt='inTake'
           />
         </Column>
         <Column>
-          <Text style={title}>dFlow</Text>
+          <Text style={title}>inTake</Text>
         </Column>
       </Row>
       <Divider />

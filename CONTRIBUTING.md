@@ -1,13 +1,13 @@
-# Contributing to dFlow
+# Contributing to inTake
 
-Thank you for considering contributing to dFlow! We welcome contributions that
+Thank you for considering contributing to inTake! We welcome contributions that
 improve the platform, fix bugs, enhance documentation, or add new features.
 
 This document will guide you through the contribution process.
 
 ## 🚀 Project Overview
 
-dFlow is a self-hosted platform for deploying and managing applications, similar
+inTake is a self-hosted platform for deploying and managing applications, similar
 to Vercel, Railway, or Heroku. It provides automated deployment workflows,
 container orchestration, and infrastructure management — all while giving you
 full control over your data and infrastructure.
@@ -43,4 +43,4 @@ If you're new, here’s a quick overview:
 By contributing, you agree that your contributions will be licensed under the
 same license as the project.
 
-## Thank you for helping make dFlow better! 🚀
+## Thank you for helping make inTake better! 🚀

@@ -1,6 +1,6 @@
 'use client'
 
-import type { VpsPlan } from '../../actions/cloud/dFlow/types'
+import type { VpsPlan } from '../../actions/cloud/inTake/types'
 import { ComingSoonBadge } from '../ComingSoonBadge'
 import SidebarToggleButton from '../SidebarToggleButton'
 import {
@@ -26,7 +26,7 @@ import React, { useEffect, useId, useState } from 'react'
 import {
   checkAccountConnection,
   checkPaymentMethodAction,
-} from '@/actions/cloud/dFlow'
+} from '@/actions/cloud/inTake'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -46,7 +46,7 @@ import { ServerType } from '@/payload-types-overrides'
 
 import AttachCustomServerForm from './AttachCustomServerForm'
 import CreateEC2InstanceForm from './CreateEC2InstanceForm'
-import { DflowVpsFormContainer } from './dflowVpsForm/DflowVpsFormContainer'
+import { IntakeVpsFormContainer } from './intakeVpsForm/IntakeVpsFormContainer'
 
 interface ServerSelectionFormProps {
   setType: (type: string) => void
@@ -55,7 +55,7 @@ interface ServerSelectionFormProps {
   option: string
   isOnboarding: boolean
   vpsPlans: VpsPlan[]
-  dFlowAccounts?: CloudProviderAccount[]
+  inTakeAccounts?: CloudProviderAccount[]
   onAccountSelect: (accountId: string, token: string) => void
 }
 
@@ -69,9 +69,9 @@ interface ServerFormContentProps {
   onBack: () => void
   isOnboarding: boolean
   vpsPlan?: VpsPlan
-  dFlowAccounts?: CloudProviderAccount[]
-  selectedDFlowAccount?: CloudProviderAccount
-  dFlowUser: any
+  inTakeAccounts?: CloudProviderAccount[]
+  selectedINTakeAccount?: CloudProviderAccount
+  inTakeUser: any
 }
 interface ServerFormProps {
   sshKeys: SshKey[]
@@ -79,8 +79,8 @@ interface ServerFormProps {
   server?: ServerType
   formType?: 'create' | 'update'
   vpsPlans?: VpsPlan[]
-  dFlowAccounts?: CloudProviderAccount[]
-  dFlowUser?: any
+  inTakeAccounts?: CloudProviderAccount[]
+  inTakeUser?: any
 }
 
 const calculateDiscountedPrice = (
@@ -134,18 +134,18 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
   type,
   isOnboarding,
   vpsPlans,
-  dFlowAccounts,
+  inTakeAccounts,
   onAccountSelect,
 }) => {
   const id = useId()
   const [selectedType, setSelectedType] = useState<string>('manual')
   const [selectedOption, setSelectedOption] = useState<string>('manual')
-  const [selectedDFlowAccount, setSelectedDFlowAccount] = useState<{
+  const [selectedINTakeAccount, setSelectedINTakeAccount] = useState<{
     id: string
     token: string
   }>({
-    id: dFlowAccounts?.[0]?.id || '',
-    token: dFlowAccounts?.[0]?.dFlowDetails?.accessToken || '',
+    id: inTakeAccounts?.[0]?.id || '',
+    token: inTakeAccounts?.[0]?.inTakeDetails?.accessToken || '',
   })
   const [paymentData, setPaymentData] = useState<{
     walletBalance: number
@@ -189,21 +189,21 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
     })
 
   useEffect(() => {
-    if (selectedDFlowAccount.id && selectedDFlowAccount.token) {
-      checkConnection({ token: selectedDFlowAccount.token })
-      fetchPaymentData({ token: selectedDFlowAccount.token })
-      onAccountSelect(selectedDFlowAccount.id, selectedDFlowAccount.token)
+    if (selectedINTakeAccount.id && selectedINTakeAccount.token) {
+      checkConnection({ token: selectedINTakeAccount.token })
+      fetchPaymentData({ token: selectedINTakeAccount.token })
+      onAccountSelect(selectedINTakeAccount.id, selectedINTakeAccount.token)
     }
-  }, [selectedDFlowAccount])
+  }, [selectedINTakeAccount])
 
   const handleAccountChange = (accountId: string) => {
-    const account = dFlowAccounts?.find(acc => acc.id === accountId)
+    const account = inTakeAccounts?.find(acc => acc.id === accountId)
     if (account) {
       const newAccount = {
         id: accountId,
-        token: account.dFlowDetails?.accessToken || '',
+        token: account.inTakeDetails?.accessToken || '',
       }
-      setSelectedDFlowAccount(newAccount)
+      setSelectedINTakeAccount(newAccount)
       setAccountConnectionStatus(null) // Reset status while checking
       setPaymentData(null) // Reset payment data while checking
     }
@@ -227,13 +227,13 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
     return formatDiscountedPrice(plan, walletBalance)
   }
 
-  const selectedAccount = dFlowAccounts?.find(
-    acc => acc.id === selectedDFlowAccount.id,
+  const selectedAccount = inTakeAccounts?.find(
+    acc => acc.id === selectedINTakeAccount.id,
   )
-  const dFlowAccountDetails = selectedAccount?.dFlowDetails
+  const inTakeAccountDetails = selectedAccount?.inTakeDetails
 
   const selectedPlan =
-    selectedType === 'dFlow'
+    selectedType === 'inTake'
       ? vpsPlans?.find(p => p.slug === selectedOption)
       : null
   const planCost = selectedPlan?.pricing?.[0]?.price || 0
@@ -246,16 +246,16 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
   const getContinueButtonText = () => {
     if (selectedType === 'manual') {
       return 'Continue with Manual Setup'
-    } else if (selectedType === 'dFlow') {
+    } else if (selectedType === 'inTake') {
       return `Continue with ${vpsPlans?.find(p => p.slug === selectedOption)?.name}`
     }
     return `Continue with ${cloudProvidersList.find(p => p.slug === selectedOption)?.label || 'Selected Provider'}`
   }
 
-  const navigateWithDflowActive = () => {
+  const navigateWithIntakeActive = () => {
     const currentPath = window.location.pathname
     const currentSearch = new URLSearchParams(window.location.search)
-    currentSearch.set('active', 'dflow')
+    currentSearch.set('active', 'intake')
     router.push(`${currentPath}?${currentSearch.toString()}`)
   }
 
@@ -349,9 +349,9 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                 size='sm'
                 className='w-full gap-2 sm:w-fit'
                 onClick={() =>
-                  window.open('https://dflow.sh/profile/cards', '_blank')
+                  window.open('https://intake.sh/profile/cards', '_blank')
                 }>
-                Open dFlow
+                Open inTake
                 <ExternalLink className='h-4 w-4' />
               </Button>
             </div>
@@ -363,21 +363,21 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
     return recommendations
   }
 
-  const renderDFlowAccountSection = () => {
-    if (!dFlowAccountDetails?.accessToken) {
+  const renderINTakeAccountSection = () => {
+    if (!inTakeAccountDetails?.accessToken) {
       return (
         <div className='flex flex-col items-center gap-4 py-8'>
           <div className='text-center'>
-            <h3 className='text-lg font-medium'>Connect Your dFlow Account</h3>
+            <h3 className='text-lg font-medium'>Connect Your inTake Account</h3>
             <p className='mt-2 text-sm text-muted-foreground'>
-              You need to connect a dFlow account to create VPS instances
+              You need to connect a inTake account to create VPS instances
             </p>
           </div>
           <Button
             variant='default'
-            onClick={navigateWithDflowActive}
+            onClick={navigateWithIntakeActive}
             className='gap-2'>
-            Connect dFlow Account
+            Connect inTake Account
             <Link className='h-4 w-4' />
           </Button>
         </div>
@@ -402,7 +402,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                 className='grid grid-cols-1 gap-6 md:grid-cols-2'
                 value={selectedOption}
                 onValueChange={(value: string) =>
-                  handleOptionChange(value, 'dFlow')
+                  handleOptionChange(value, 'inTake')
                 }>
                 {vpsPlans.map(plan => {
                   const originalPrice = plan.pricing?.[0]?.price || 0
@@ -467,7 +467,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
             )}
 
             {/* Payment Status Section */}
-            {selectedType === 'dFlow' &&
+            {selectedType === 'inTake' &&
               selectedOption &&
               vpsPlans &&
               vpsPlans.length > 0 && (
@@ -577,12 +577,12 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                       </p>
                       <p className='text-sm'>
                         Please try a different account or check your account
-                        details in dFlow.
+                        details in inTake.
                       </p>
                       <Button
                         variant='outline'
                         size='sm'
-                        onClick={navigateWithDflowActive}
+                        onClick={navigateWithIntakeActive}
                         className='gap-2'>
                         Check Account Details
                         <Settings className='h-4 w-4' />
@@ -616,7 +616,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
             onClick={handleContinue}
             disabled={
               !selectedOption ||
-              (selectedType === 'dFlow' &&
+              (selectedType === 'inTake' &&
                 (!accountConnectionStatus?.isConnected || !canProceed))
             }>
             {getContinueButtonText()}
@@ -626,32 +626,32 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
       )}
 
       <div className='space-y-6'>
-        {/* dFlow Section */}
+        {/* inTake Section */}
         <Card className='border shadow-sm'>
           <CardHeader className='pb-0'>
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-3'>
-                <CardTitle className='text-lg font-medium'>dFlow</CardTitle>
+                <CardTitle className='text-lg font-medium'>inTake</CardTitle>
                 <Button
                   variant='outline'
                   size='sm'
-                  onClick={navigateWithDflowActive}
+                  onClick={navigateWithIntakeActive}
                   className='h-8 w-8 p-0'
-                  title='Manage dFlow Accounts'>
+                  title='Manage inTake Accounts'>
                   <Settings className='h-4 w-4' />
                 </Button>
               </div>
-              {dFlowAccounts && dFlowAccounts.length > 0 && (
+              {inTakeAccounts && inTakeAccounts.length > 0 && (
                 <Select
-                  value={selectedDFlowAccount.id}
+                  value={selectedINTakeAccount.id}
                   onValueChange={handleAccountChange}>
                   <SelectTrigger className='w-fit'>
-                    <SelectValue placeholder='Select dFlow account' />
+                    <SelectValue placeholder='Select inTake account' />
                   </SelectTrigger>
                   <SelectContent>
-                    {dFlowAccounts.map(account => (
+                    {inTakeAccounts.map(account => (
                       <SelectItem key={account.id} value={account.id}>
-                        {account.name || 'dFlow Account'}
+                        {account.name || 'inTake Account'}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -660,7 +660,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
             </div>
           </CardHeader>
           <CardContent className='p-6'>
-            {renderDFlowAccountSection()}
+            {renderINTakeAccountSection()}
           </CardContent>
         </Card>
 
@@ -779,7 +779,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
           size='lg'
           disabled={
             !selectedOption ||
-            (selectedType === 'dFlow' &&
+            (selectedType === 'inTake' &&
               (!accountConnectionStatus?.isConnected || !canProceed))
           }
           onClick={handleContinue}>
@@ -801,9 +801,9 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
   onBack,
   isOnboarding,
   vpsPlan,
-  dFlowAccounts,
-  selectedDFlowAccount,
-  dFlowUser,
+  inTakeAccounts,
+  selectedINTakeAccount,
+  inTakeUser,
 }) => {
   const router = useRouter()
   const { organisation } = useParams()
@@ -844,7 +844,7 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
     if (serverType === 'cloud') {
       return serverOption // For cloud providers, use the option (aws, gcp, etc.)
     }
-    return serverType // For manual, dFlow, etc.
+    return serverType // For manual, inTake, etc.
   }
 
   // Get provider name based on type and option
@@ -857,8 +857,8 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
     switch (actualType) {
       case 'manual':
         return 'Manual Server Configuration'
-      case 'dFlow':
-        return 'Configure dFlow Server'
+      case 'inTake':
+        return 'Configure inTake Server'
       case 'aws':
         return 'Configure AWS Server'
       case 'gcp':
@@ -885,26 +885,26 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
     const actualType = getActualServerType(serverType, serverOption)
 
     switch (actualType) {
-      case 'dFlow':
+      case 'inTake':
         if (!vpsPlan) {
           return {
             isValid: false,
-            message: 'VPS plan is required for dFlow server configuration.',
+            message: 'VPS plan is required for inTake server configuration.',
             action: 'Please select a VPS plan before proceeding.',
           }
         }
-        if (!dFlowAccounts || dFlowAccounts.length === 0) {
+        if (!inTakeAccounts || inTakeAccounts.length === 0) {
           return {
             isValid: false,
-            message: 'dFlow account is required for server configuration.',
-            action: 'Please connect a dFlow account before proceeding.',
+            message: 'inTake account is required for server configuration.',
+            action: 'Please connect a inTake account before proceeding.',
           }
         }
-        if (!selectedDFlowAccount) {
+        if (!selectedINTakeAccount) {
           return {
             isValid: false,
-            message: 'Please select a dFlow account to continue.',
-            action: 'Choose an account from the available dFlow accounts.',
+            message: 'Please select a inTake account to continue.',
+            action: 'Choose an account from the available inTake accounts.',
           }
         }
         break
@@ -941,14 +941,14 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
             />
           )
 
-        case 'dFlow':
+        case 'inTake':
           return (
-            <DflowVpsFormContainer
+            <IntakeVpsFormContainer
               vpsPlan={vpsPlan as VpsPlan}
-              dFlowAccounts={dFlowAccounts}
-              selectedDFlowAccount={selectedDFlowAccount}
+              inTakeAccounts={inTakeAccounts}
+              selectedINTakeAccount={selectedINTakeAccount}
               sshKeys={sshKeys}
-              dFlowUser={dFlowUser}
+              inTakeUser={inTakeUser}
             />
           )
 
@@ -1049,21 +1049,21 @@ const ServerForm: React.FC<ServerFormProps> = ({
   securityGroups,
   server,
   formType,
-  dFlowAccounts,
+  inTakeAccounts,
   vpsPlans,
-  dFlowUser,
+  inTakeUser,
 }) => {
   const [type, setType] = useQueryState('type', parseAsString.withDefault(''))
   const [option, setOption] = useQueryState(
     'option',
     parseAsString.withDefault(''),
   )
-  const [selectedDFlowAccount, setSelectedDFlowAccount] = useState<{
+  const [selectedINTakeAccount, setSelectedINTakeAccount] = useState<{
     id: string
     token: string
   }>({
-    id: dFlowAccounts?.[0]?.id || '',
-    token: dFlowAccounts?.[0]?.dFlowDetails?.accessToken || '',
+    id: inTakeAccounts?.[0]?.id || '',
+    token: inTakeAccounts?.[0]?.inTakeDetails?.accessToken || '',
   })
 
   const pathName = usePathname()
@@ -1082,7 +1082,7 @@ const ServerForm: React.FC<ServerFormProps> = ({
   }
 
   const handleAccountSelect = (accountId: string, token: string) => {
-    setSelectedDFlowAccount({ id: accountId, token })
+    setSelectedINTakeAccount({ id: accountId, token })
   }
 
   return (
@@ -1095,7 +1095,7 @@ const ServerForm: React.FC<ServerFormProps> = ({
           option={option}
           isOnboarding={isOnboarding}
           vpsPlans={vpsPlans as VpsPlan[]}
-          dFlowAccounts={dFlowAccounts}
+          inTakeAccounts={inTakeAccounts}
           onAccountSelect={handleAccountSelect}
         />
       ) : (
@@ -1109,15 +1109,15 @@ const ServerForm: React.FC<ServerFormProps> = ({
           onBack={handleResetType}
           isOnboarding={isOnboarding}
           vpsPlan={
-            type === 'dFlow'
+            type === 'inTake'
               ? vpsPlans?.find(p => p.slug === option)
               : undefined
           }
-          dFlowAccounts={dFlowAccounts}
-          selectedDFlowAccount={dFlowAccounts?.find(
-            acc => acc.id === selectedDFlowAccount.id,
+          inTakeAccounts={inTakeAccounts}
+          selectedINTakeAccount={inTakeAccounts?.find(
+            acc => acc.id === selectedINTakeAccount.id,
           )}
-          dFlowUser={dFlowUser}
+          inTakeUser={inTakeUser}
         />
       )}
     </div>

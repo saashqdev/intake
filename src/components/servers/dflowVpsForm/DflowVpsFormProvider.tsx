@@ -14,11 +14,11 @@ import {
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { checkPaymentMethodAction } from '@/actions/cloud/dFlow'
-import { VpsPlan } from '@/actions/cloud/dFlow/types'
+import { checkPaymentMethodAction } from '@/actions/cloud/inTake'
+import { VpsPlan } from '@/actions/cloud/inTake/types'
 import { SshKey } from '@/payload-types'
 
-import { dflowVpsSchema } from './schemas'
+import { intakeVpsSchema } from './schemas'
 import { handleGenerateName } from './utils'
 
 type PricingOption = {
@@ -91,7 +91,7 @@ type PricingData = {
   paymentStatus: PaymentStatus
 }
 
-type DflowVpsFormContextType = {
+type IntakeVpsFormContextType = {
   vpsPlan: VpsPlan
   sshKeys: SshKey[]
   selectedAccount: {
@@ -109,9 +109,11 @@ type DflowVpsFormContextType = {
   isFetchingPayment: boolean
 }
 
-const DflowVpsFormContext = createContext<DflowVpsFormContextType | null>(null)
+const IntakeVpsFormContext = createContext<IntakeVpsFormContextType | null>(
+  null,
+)
 
-export const DflowVpsFormProvider = ({
+export const IntakeVpsFormProvider = ({
   children,
   vpsPlan,
   selectedAccount,
@@ -132,8 +134,8 @@ export const DflowVpsFormProvider = ({
   >
   sshKeys: SshKey[]
 }) => {
-  const methods = useForm<z.infer<typeof dflowVpsSchema>>({
-    resolver: zodResolver(dflowVpsSchema),
+  const methods = useForm<z.infer<typeof intakeVpsSchema>>({
+    resolver: zodResolver(intakeVpsSchema),
     defaultValues: {
       login: {
         username: 'root',
@@ -343,7 +345,7 @@ export const DflowVpsFormProvider = ({
 
   return (
     <FormProvider {...methods}>
-      <DflowVpsFormContext.Provider
+      <IntakeVpsFormContext.Provider
         value={{
           vpsPlan,
           sshKeys,
@@ -354,16 +356,16 @@ export const DflowVpsFormProvider = ({
           isFetchingPayment,
         }}>
         {children}
-      </DflowVpsFormContext.Provider>
+      </IntakeVpsFormContext.Provider>
     </FormProvider>
   )
 }
 
-export const useDflowVpsForm = () => {
-  const context = useContext(DflowVpsFormContext)
+export const useIntakeVpsForm = () => {
+  const context = useContext(IntakeVpsFormContext)
   if (!context) {
     throw new Error(
-      'useDflowVpsForm must be used within a DflowVpsFormProvider',
+      'useIntakeVpsForm must be used within a IntakeVpsFormProvider',
     )
   }
   return context

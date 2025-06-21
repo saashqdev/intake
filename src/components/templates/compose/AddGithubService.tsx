@@ -320,7 +320,7 @@ const AddGithubService = ({
                   <Input
                     type='text'
                     name='repositoryURL'
-                    placeholder='ex: https://github.com/akhil-naidu/dflow'
+                    placeholder='ex: https://github.com/saashqdev/intake'
                     defaultValue={publicRepoURL}
                     onChange={e => {
                       const value = e.target.value

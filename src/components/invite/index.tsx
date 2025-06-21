@@ -78,14 +78,14 @@ function InvitationView({
         <CardContent>
           <div className='w-full max-w-md'>
             <Image
-              src='/images/dflow-no-bg.png'
-              alt='dFlow logo'
+              src='/images/intake-no-bg.png'
+              alt='inTake logo'
               className='m-auto mb-4'
               width={50}
               height={50}
             />
             <h6 className='mb-6 text-center text-lg font-semibold'>
-              Welcome to Dflow
+              Welcome to Intake
             </h6>
           </div>
         </CardContent>

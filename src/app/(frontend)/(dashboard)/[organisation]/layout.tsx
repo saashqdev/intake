@@ -46,13 +46,13 @@ const DashboardLayoutInner = async ({
             href={`/${organisationSlug}/dashboard`}
             className='flex items-center gap-1'>
             <Image
-              src='/images/dflow-no-bg.png'
-              alt='dFlow-logo'
+              src='/images/intake-no-bg.png'
+              alt='inTake-logo'
               width={32}
               height={32}
               className='object-contain'
             />
-            <p className='hidden sm:block'>dFlow</p>
+            <p className='hidden sm:block'>inTake</p>
           </Link>
 
           {/* Breadcrumb placeholders */}
@@ -65,7 +65,7 @@ const DashboardLayoutInner = async ({
           <Link
             target='_blank'
             className='inline-flex items-center gap-x-1 transition-colors duration-300 hover:text-muted-foreground'
-            href='https://github.com/akhil-naidu/dflow'>
+            href='https://github.com/saashqdev/intake'>
             <GithubSvg width='1.25em' height='1.25em' />{' '}
             {result?.data?.stars ? result?.data?.stars : 0}
           </Link>

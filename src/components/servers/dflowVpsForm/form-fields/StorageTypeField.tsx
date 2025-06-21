@@ -1,4 +1,4 @@
-import { useDflowVpsForm } from '../DflowVpsFormProvider'
+import { useIntakeVpsForm } from '../IntakeVpsFormProvider'
 import { formatValue } from '../utils'
 import { useFormContext } from 'react-hook-form'
 
@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/select'
 
 export const StorageTypeField = () => {
-  const { vpsPlan } = useDflowVpsForm()
+  const { vpsPlan } = useIntakeVpsForm()
   const form = useFormContext()
 
   return (

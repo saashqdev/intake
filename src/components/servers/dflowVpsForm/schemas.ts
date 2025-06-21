@@ -9,7 +9,7 @@ export const loginSchema = z.object({
   sshKeyIds: z.array(z.string()),
 })
 
-export const dflowVpsSchema = z.object({
+export const intakeVpsSchema = z.object({
   displayName: z
     .string()
     .min(1, { message: 'Display name is required' })
@@ -42,4 +42,4 @@ export const dflowVpsSchema = z.object({
   }),
 })
 
-export type VpsFormData = z.infer<typeof dflowVpsSchema>
+export type VpsFormData = z.infer<typeof intakeVpsSchema>

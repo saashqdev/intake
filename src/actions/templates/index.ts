@@ -10,7 +10,7 @@ import {
   uniqueNamesGenerator,
 } from 'unique-names-generator'
 
-import { DFLOW_CONFIG, TEMPLATE_EXPR } from '@/lib/constants'
+import { INTAKE_CONFIG, TEMPLATE_EXPR } from '@/lib/constants'
 import { protectedClient, publicClient } from '@/lib/safe-action'
 import { Project, Service, Template } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
@@ -106,27 +106,27 @@ export const deleteTemplate = protectedClient
       userTenant: { tenant },
       payload,
     } = ctx
-    const { docs: dFlowAccounts } = await payload.find({
+    const { docs: inTakeAccounts } = await payload.find({
       collection: 'cloudProviderAccounts',
       pagination: false,
       where: {
         and: [
           { id: { equals: accountId } },
-          { type: { equals: 'dFlow' } },
+          { type: { equals: 'inTake' } },
           { 'tenant.slug': { equals: tenant?.slug } },
         ],
       },
     })
 
-    if (!dFlowAccounts?.length) {
-      throw new Error('No dFlow account found with the specified ID')
+    if (!inTakeAccounts?.length) {
+      throw new Error('No inTake account found with the specified ID')
     }
 
-    const dFlowAccount = dFlowAccounts[0]
-    const token = dFlowAccount.dFlowDetails?.accessToken
+    const inTakeAccount = inTakeAccounts[0]
+    const token = inTakeAccount.inTakeDetails?.accessToken
 
     if (!token) {
-      throw new Error('Invalid dFlow account: No access token found')
+      throw new Error('Invalid inTake account: No access token found')
     }
     const response = await payload.update({
       collection: 'templates',
@@ -138,10 +138,10 @@ export const deleteTemplate = protectedClient
 
     if (response.isPublished) {
       await axios.delete(
-        `${DFLOW_CONFIG.URL}/api/templates/${response.publishedTemplateId}`,
+        `${INTAKE_CONFIG.URL}/api/templates/${response.publishedTemplateId}`,
         {
           headers: {
-            Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+            Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${token}`,
           },
           timeout: 10000,
         },
@@ -419,7 +419,7 @@ export const getAllTemplatesAction = protectedClient
     const { userTenant, payload } = ctx
 
     if (type === 'official') {
-      const res = await fetch('https://dflow.sh/api/templates')
+      const res = await fetch('https://intake.sh/api/templates')
 
       if (!res.ok) {
         throw new Error('Failed to fetch official templates')
@@ -645,7 +645,7 @@ export const getOfficialTemplateByIdAction = publicClient
   .action(async ({ clientInput }) => {
     const { templateId } = clientInput
 
-    const res = await fetch(`https://dflow.sh/api/templates/${templateId}`)
+    const res = await fetch(`https://intake.sh/api/templates/${templateId}`)
 
     if (!res.ok) {
       throw new Error('Failed to fetch template details')
@@ -899,27 +899,27 @@ export const publishTemplateAction = protectedClient
 
     const { accountId, templateId } = clientInput
 
-    const { docs: dFlowAccounts } = await payload.find({
+    const { docs: inTakeAccounts } = await payload.find({
       collection: 'cloudProviderAccounts',
       pagination: false,
       where: {
         and: [
           { id: { equals: accountId } },
-          { type: { equals: 'dFlow' } },
+          { type: { equals: 'inTake' } },
           { 'tenant.slug': { equals: tenant?.slug } },
         ],
       },
     })
 
-    if (!dFlowAccounts?.length) {
-      throw new Error('No dFlow account found with the specified ID')
+    if (!inTakeAccounts?.length) {
+      throw new Error('No inTake account found with the specified ID')
     }
 
-    const dFlowAccount = dFlowAccounts[0]
-    const token = dFlowAccount.dFlowDetails?.accessToken
+    const inTakeAccount = inTakeAccounts[0]
+    const token = inTakeAccount.inTakeDetails?.accessToken
 
     if (!token) {
-      throw new Error('Invalid dFlow account: No access token found')
+      throw new Error('Invalid inTake account: No access token found')
     }
     const { docs: templates } = await payload.find({
       collection: 'templates',
@@ -935,7 +935,7 @@ export const publishTemplateAction = protectedClient
       throw new Error('Invalid templateId: No access template.')
     }
     const response = await axios.post(
-      `${DFLOW_CONFIG.URL}/api/templates`,
+      `${INTAKE_CONFIG.URL}/api/templates`,
       {
         name: template.name,
         description: template.description,
@@ -944,7 +944,7 @@ export const publishTemplateAction = protectedClient
       },
       {
         headers: {
-          Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+          Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${token}`,
         },
         timeout: 10000,
       },
@@ -961,10 +961,10 @@ export const publishTemplateAction = protectedClient
         })
       } catch (err) {
         await axios.delete(
-          `${DFLOW_CONFIG.URL}/api/templates/${response.data.doc.id}`,
+          `${INTAKE_CONFIG.URL}/api/templates/${response.data.doc.id}`,
           {
             headers: {
-              Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+              Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${token}`,
             },
             timeout: 10000,
           },
@@ -989,27 +989,27 @@ export const unPublishTemplateAction = protectedClient
 
     const { accountId, templateId } = clientInput
 
-    const { docs: dFlowAccounts } = await payload.find({
+    const { docs: inTakeAccounts } = await payload.find({
       collection: 'cloudProviderAccounts',
       pagination: false,
       where: {
         and: [
           { id: { equals: accountId } },
-          { type: { equals: 'dFlow' } },
+          { type: { equals: 'inTake' } },
           { 'tenant.slug': { equals: tenant?.slug } },
         ],
       },
     })
 
-    if (!dFlowAccounts?.length) {
-      throw new Error('No dFlow account found with the specified ID')
+    if (!inTakeAccounts?.length) {
+      throw new Error('No inTake account found with the specified ID')
     }
 
-    const dFlowAccount = dFlowAccounts[0]
-    const token = dFlowAccount.dFlowDetails?.accessToken
+    const inTakeAccount = inTakeAccounts[0]
+    const token = inTakeAccount.inTakeDetails?.accessToken
 
     if (!token) {
-      throw new Error('Invalid dFlow account: No access token found')
+      throw new Error('Invalid inTake account: No access token found')
     }
     const { docs: templates } = await payload.find({
       collection: 'templates',
@@ -1034,10 +1034,10 @@ export const unPublishTemplateAction = protectedClient
     })
     if (templateData) {
       await axios.delete(
-        `${DFLOW_CONFIG.URL}/api/templates/${template.publishedTemplateId}`,
+        `${INTAKE_CONFIG.URL}/api/templates/${template.publishedTemplateId}`,
         {
           headers: {
-            Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+            Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${token}`,
           },
           timeout: 10000,
         },
@@ -1060,27 +1060,27 @@ export const syncWithPublicTemplateAction = protectedClient
 
     const { accountId, templateId } = clientInput
 
-    const { docs: dFlowAccounts } = await payload.find({
+    const { docs: inTakeAccounts } = await payload.find({
       collection: 'cloudProviderAccounts',
       pagination: false,
       where: {
         and: [
           { id: { equals: accountId } },
-          { type: { equals: 'dFlow' } },
+          { type: { equals: 'inTake' } },
           { 'tenant.slug': { equals: tenant?.slug } },
         ],
       },
     })
 
-    if (!dFlowAccounts?.length) {
-      throw new Error('No dFlow account found with the specified ID')
+    if (!inTakeAccounts?.length) {
+      throw new Error('No inTake account found with the specified ID')
     }
 
-    const dFlowAccount = dFlowAccounts[0]
-    const token = dFlowAccount.dFlowDetails?.accessToken
+    const inTakeAccount = inTakeAccounts[0]
+    const token = inTakeAccount.inTakeDetails?.accessToken
 
     if (!token) {
-      throw new Error('Invalid dFlow account: No access token found')
+      throw new Error('Invalid inTake account: No access token found')
     }
     const { docs: templates } = await payload.find({
       collection: 'templates',
@@ -1097,7 +1097,7 @@ export const syncWithPublicTemplateAction = protectedClient
     }
 
     await axios.patch(
-      `${DFLOW_CONFIG.URL}/api/templates/${template.publishedTemplateId}`,
+      `${INTAKE_CONFIG.URL}/api/templates/${template.publishedTemplateId}`,
       {
         name: template.name,
         description: template.description,
@@ -1106,7 +1106,7 @@ export const syncWithPublicTemplateAction = protectedClient
       },
       {
         headers: {
-          Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+          Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${token}`,
         },
         timeout: 10000,
       },
@@ -1120,7 +1120,7 @@ export const getPublicTemplatesAction = publicClient
   .metadata({ actionName: 'getPublicTemplatesAction' })
   .action(async () => {
     const response = await axios.get(
-      `${DFLOW_CONFIG.URL}/api/templates?pagination=false`,
+      `${INTAKE_CONFIG.URL}/api/templates?pagination=false`,
     )
 
     const allTemplates = response?.data?.docs || []

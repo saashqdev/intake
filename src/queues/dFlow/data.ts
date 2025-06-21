@@ -14,7 +14,7 @@ export const createdVpsOrderRes = {
         productId: 'V95',
         priceId: 'price_1RTEZbE7vQPggCT07UUTdzO3',
       },
-      displayName: 'dflow-ryzolve',
+      displayName: 'intake-ryzolve',
 
       region: {
         code: 'US-central',
@@ -44,7 +44,7 @@ export const createdVpsOrderRes = {
 
       additionalIps: [],
       name: 'vmi2629405',
-      displayName: 'dflow-ryzolve',
+      displayName: 'intake-ryzolve',
       instanceId: 202629405,
       dataCenter: 'United States (Central) 1',
       region: 'US-central',

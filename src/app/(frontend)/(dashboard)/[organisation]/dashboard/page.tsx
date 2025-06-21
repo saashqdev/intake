@@ -10,7 +10,7 @@ import {
 import Link from 'next/link'
 import { Suspense } from 'react'
 
-import { getDflowUser } from '@/actions/cloud/dFlow'
+import { getIntakeUser } from '@/actions/cloud/inTake'
 import { getProjectsAndServers } from '@/actions/pages/dashboard'
 import { ProjectCard } from '@/components/ProjectCard'
 import ServerTerminalClient from '@/components/ServerTerminalClient'
@@ -32,9 +32,9 @@ const SuspendedDashboard = async ({
   organisationSlug: string
 }) => {
   const result = await getProjectsAndServers()
-  const dflowUser = await getDflowUser()
+  const intakeUser = await getIntakeUser()
 
-  const hasClaimedCredits = dflowUser?.data?.user?.hasClaimedFreeCredits
+  const hasClaimedCredits = intakeUser?.data?.user?.hasClaimedFreeCredits
 
   const servers = result?.data?.serversRes.docs ?? []
   const projects = result?.data?.projectsRes.docs ?? []
@@ -82,10 +82,10 @@ const SuspendedDashboard = async ({
                   on Claim Rewards to continue on{' '}
                   <a
                     className='inline-flex items-center text-foreground underline'
-                    href='https://dflow.sh/dashboard'
+                    href='https://intake.sh/dashboard'
                     target='_blank'
                     rel='noopener noreferrer'>
-                    dflow.sh
+                    intake.sh
                     <ArrowUpRight size={16} />
                   </a>
                 </p>
@@ -129,7 +129,7 @@ const SuspendedDashboard = async ({
             </AlertDescription>
           </Alert>
         ) : null}
-        
+
         {/* Projects display */}
         {projects?.length ? (
           <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>

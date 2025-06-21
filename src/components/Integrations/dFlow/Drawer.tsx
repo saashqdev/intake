@@ -19,17 +19,17 @@ import {
 } from '@/components/ui/sheet'
 import { integrationsList } from '@/lib/integrationList'
 
-import DFlowForm from './Form'
+import INTakeForm from './Form'
 import CloudProvidersList from './List'
 
-const DflowDrawer = () => {
+const IntakeDrawer = () => {
   const [activeSlide, setActiveSlide] = useQueryState(
     'active',
     parseAsString.withDefault(''),
   )
 
   const integration = integrationsList.find(
-    integration => integration.slug === 'dflow',
+    integration => integration.slug === 'intake',
   )
 
   const { execute, isPending, result } = useAction(
@@ -37,8 +37,8 @@ const DflowDrawer = () => {
   )
 
   useEffect(() => {
-    if (activeSlide === 'dflow' && !result?.data) {
-      execute({ type: 'dFlow' })
+    if (activeSlide === 'intake' && !result?.data) {
+      execute({ type: 'inTake' })
     }
   }, [activeSlide, result])
 
@@ -51,15 +51,15 @@ const DflowDrawer = () => {
     </div>
   ) : null
 
-  // Count existing dFlow accounts
-  const dflowAccountsCount = result?.data?.length || 0
-  const canAddNewAccount = dflowAccountsCount === 0
+  // Count existing inTake accounts
+  const intakeAccountsCount = result?.data?.length || 0
+  const canAddNewAccount = intakeAccountsCount === 0
 
   return (
     <Sheet
-      open={activeSlide === 'dflow'}
+      open={activeSlide === 'intake'}
       onOpenChange={state => {
-        setActiveSlide(state ? 'dflow' : '')
+        setActiveSlide(state ? 'intake' : '')
       }}>
       <SheetContent className='flex w-full flex-col justify-between sm:max-w-lg'>
         <SheetHeader className='text-left'>
@@ -83,18 +83,18 @@ const DflowDrawer = () => {
 
         <SheetFooter>
           {canAddNewAccount ? (
-            <DFlowForm
+            <INTakeForm
               refetch={execute}
-              existingAccountsCount={dflowAccountsCount}>
+              existingAccountsCount={intakeAccountsCount}>
               <Button>
                 <Link />
                 Connect account
               </Button>
-            </DFlowForm>
+            </INTakeForm>
           ) : (
             <div className='w-full text-center'>
               <p className='mb-2 text-sm text-muted-foreground'>
-                You can only connect one dFlow account
+                You can only connect one inTake account
               </p>
               <Button disabled variant='outline' className='w-full'>
                 <Link />
@@ -108,4 +108,4 @@ const DflowDrawer = () => {
   )
 }
 
-export default DflowDrawer
+export default IntakeDrawer

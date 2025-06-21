@@ -1,5 +1,5 @@
 {
-  "name": "dFlow",
+  "name": "inTake",
   "version": "0.1",
   "description": "A blank template to get started with Payload 3.0",
   "license": "MIT",
@@ -84,8 +84,8 @@
     "octokit": "^4.1.2",
     "payload": "3.40.0",
     "posthog-js": "^1.239.0",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
     "react-hook-form": "^7.54.2",
     "recharts": "^2.15.1",
     "rehype-autolink-headings": "^7.1.0",

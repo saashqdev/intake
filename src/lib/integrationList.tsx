@@ -6,15 +6,15 @@ import {
   DigitalOcean,
   Docker,
   GoogleCloudPlatform,
-  dFlow,
+  inTake,
 } from '@/components/icons'
 
 export const integrationsList = [
   {
-    label: 'dFlow',
-    icon: dFlow,
-    description: 'Manage your dFlow account & servers',
-    slug: 'dflow',
+    label: 'inTake',
+    icon: inTake,
+    description: 'Manage your inTake account & servers',
+    slug: 'intake',
     live: true,
   },
   {

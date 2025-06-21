@@ -293,7 +293,7 @@ const ReferenceVariableDropdown = ({
   index: number
 }) => {
   const { setValue, getValues } = useFormContext()
-  const publicDomain = `{{ ${serviceName}.DFLOW_PUBLIC_DOMAIN }}`
+  const publicDomain = `{{ ${serviceName}.INTAKE_PUBLIC_DOMAIN }}`
   const secretKey = `{{ secret(64, "abcdefghijklMNOPQRSTUVWXYZ") }}`
 
   return (

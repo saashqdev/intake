@@ -1,12 +1,12 @@
 import { z } from 'zod'
 
-export const connectDFlowAccountSchema = z.object({
+export const connectINTakeAccountSchema = z.object({
   accessToken: z.string().min(1),
   name: z.string().min(1),
   id: z.string().optional(),
 })
 
-export const getDFlowPlansActionSchema = z.object({ accessToken: z.string() })
+export const getINTakePlansActionSchema = z.object({ accessToken: z.string() })
 
 export const createSshKeyActionSchema = z.object({
   token: z.string(),
@@ -63,6 +63,6 @@ export const checkConnectionSchema = z.object({
   token: z.string().min(1, 'Token is required'),
 })
 
-export const deleteDFlowAccountSchema = z.object({
+export const deleteINTakeAccountSchema = z.object({
   id: z.string(),
 })

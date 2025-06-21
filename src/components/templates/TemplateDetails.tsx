@@ -197,7 +197,7 @@ const TemplateDetails = ({
                 To {isPublished ? 'unpublish' : 'publish'} this template, you
                 must first connect your{' '}
                 <Link href='/dashboard/integrations' className='underline'>
-                  dFlow
+                  inTake
                 </Link>{' '}
                 account in the Integrations section.
               </AlertDescription>

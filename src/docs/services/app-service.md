@@ -146,7 +146,7 @@ Located at the top-right of your service view:
 
 ## ✅ Summary
 
-App Services in dFlow offer powerful integration with your development workflow.
+App Services in inTake offer powerful integration with your development workflow.
 From connecting a repo on GitHub, GitLab, or Bitbucket to deploying and managing
 the full lifecycle, everything is streamlined for rapid iteration and stable
 operations.

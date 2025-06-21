@@ -7,7 +7,7 @@ categoryOrder: 4
 
 # Database Service
 
-dFlow provides managed database services that are ready to use with minimal
+inTake provides managed database services that are ready to use with minimal
 configuration. These databases are provisioned automatically, and credentials
 are generated securely. The interface allows you to view connection details,
 monitor basic activity, and review deployment information where applicable.
@@ -17,7 +17,7 @@ monitor basic activity, and review deployment information where applicable.
 ## 🛠️ General
 
 This section displays the configuration and credentials of your database
-instance. All fields are **read-only** and managed by dFlow.
+instance. All fields are **read-only** and managed by inTake.
 
 ### 🔐 Internal Credentials
 
@@ -81,7 +81,7 @@ is currently disabled** in the UI.
   </tbody>
 </table>
 
-> ℹ️ All credentials are managed by dFlow. For security reasons, editing is
+> ℹ️ All credentials are managed by inTake. For security reasons, editing is
 > disabled.
 
 ---

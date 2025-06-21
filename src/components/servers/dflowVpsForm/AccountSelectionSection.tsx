@@ -10,11 +10,11 @@ import {
 import { CloudProviderAccount } from '@/payload-types'
 
 export const AccountSelectionSection = ({
-  dFlowAccounts,
+  inTakeAccounts,
   selectedAccount,
   onAccountChange,
 }: {
-  dFlowAccounts?: CloudProviderAccount[]
+  inTakeAccounts?: CloudProviderAccount[]
   selectedAccount: {
     id: string
     token: string
@@ -26,14 +26,14 @@ export const AccountSelectionSection = ({
     }>
   >
 }) => {
-  if (!dFlowAccounts || dFlowAccounts.length === 0) return null
+  if (!inTakeAccounts || inTakeAccounts.length === 0) return null
 
   const handleAccountChange = (accountId: string) => {
-    const account = dFlowAccounts?.find(acc => acc.id === accountId)
+    const account = inTakeAccounts?.find(acc => acc.id === accountId)
     if (account) {
       onAccountChange({
         id: account.id,
-        token: account.dFlowDetails?.accessToken || '',
+        token: account.inTakeDetails?.accessToken || '',
       })
     }
   }
@@ -45,18 +45,18 @@ export const AccountSelectionSection = ({
       </label>
       <Select value={selectedAccount.id} onValueChange={handleAccountChange}>
         <SelectTrigger className='bg-background'>
-          <SelectValue placeholder='Choose a dFlow account' />
+          <SelectValue placeholder='Choose a inTake account' />
         </SelectTrigger>
         <SelectContent>
-          {dFlowAccounts.map(account => (
+          {inTakeAccounts.map(account => (
             <SelectItem key={account.id} value={account.id}>
               <div className='flex items-center gap-2'>
                 <div className='flex h-6 w-6 items-center justify-center rounded-full bg-primary/10'>
                   <span className='text-xs font-medium text-primary'>
-                    {(account.name || 'dFlow Account').charAt(0).toUpperCase()}
+                    {(account.name || 'inTake Account').charAt(0).toUpperCase()}
                   </span>
                 </div>
-                <span>{account.name || 'dFlow Account'}</span>
+                <span>{account.name || 'inTake Account'}</span>
               </div>
             </SelectItem>
           ))}

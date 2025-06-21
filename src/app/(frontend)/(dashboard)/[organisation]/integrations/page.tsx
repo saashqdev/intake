@@ -22,8 +22,8 @@ const DockerRegistryDrawer = dynamic(
   { ssr: false },
 )
 
-const DflowCloudDrawer = dynamic(
-  () => import('@/components/Integrations/dFlow/Drawer'),
+const IntakeCloudDrawer = dynamic(
+  () => import('@/components/Integrations/inTake/Drawer'),
 )
 
 const SuspendedIntegrationsPage = () => {
@@ -34,7 +34,7 @@ const SuspendedIntegrationsPage = () => {
       <GitHubDrawer />
       <AWSDrawer />
       <DockerRegistryDrawer />
-      <DflowCloudDrawer />
+      <IntakeCloudDrawer />
     </>
   )
 }

@@ -5,9 +5,9 @@ order: 1
 categoryOrder: 2
 ---
 
-# dFlow Onboarding Guide
+# inTake Onboarding Guide
 
-Welcome to **dFlow**! This guide walks you through the full onboarding process
+Welcome to **inTake**! This guide walks you through the full onboarding process
 to get your services deployed smoothly.
 
 ---
@@ -19,7 +19,7 @@ to get your services deployed smoothly.
 > It's recommended to store it in a secure password manager or local vault.
 
 The first step in the onboarding process is to set up your SSH keys. These keys
-are essential for establishing secure connections between dFlow and your
+are essential for establishing secure connections between inTake and your
 servers.
 
 ### Option 1: Use Existing SSH Keys
@@ -62,7 +62,7 @@ create a new one through your cloud provider or attach an existing server.
 
 ### Option 1: Create Your Own Server
 
-Currently, dFlow supports **AWS** for creating new servers. Additional providers
+Currently, inTake supports **AWS** for creating new servers. Additional providers
 like Google Cloud, Azure, and DigitalOcean will be supported in the future.
 
 ### Required Details
@@ -146,7 +146,7 @@ You can also enable:
   A background cron job will handle automatic certificate creation and renewal.
 
 Click **Save Changes** once all configurations are complete. Your server will
-now be fully prepared for app deployments using dFlow.
+now be fully prepared for app deployments using inTake.
 
 ---
 
@@ -190,7 +190,7 @@ live and accessible via HTTPS!
 ## Step 5: Install GitHub App
 
 To enable repository access and automated deployments, you need to install the
-**dFlow GitHub App**.
+**inTake GitHub App**.
 
 This step allows you to seamlessly deploy services from your GitHub
 repositories.
@@ -200,22 +200,22 @@ repositories.
 1. Click **Install GitHub App** from the onboarding interface.
 2. You’ll be redirected to GitHub to authorize the app.
 3. Choose one of the following:
-   - **All repositories**: Give dFlow access to all of your GitHub repositories.
+   - **All repositories**: Give inTake access to all of your GitHub repositories.
    - **Only select repositories**: Limit access to specific repositories.
 4. Confirm the installation.
 
 ### Why This Is Needed
 
-Installing the GitHub App allows dFlow to:
+Installing the GitHub App allows inTake to:
 
 - Access your codebase for deployment
 - Automatically pull and build changes
 - Manage deploy keys and webhooks
 
-> 🔐 dFlow only accesses the repositories you grant permission to — and only for
+> 🔐 inTake only accesses the repositories you grant permission to — and only for
 > the purpose of deployment.
 
-Once connected, you can start linking repositories to your services in dFlow and
+Once connected, you can start linking repositories to your services in inTake and
 enable CI/CD automation with ease.
 
 ---
@@ -223,4 +223,4 @@ enable CI/CD automation with ease.
 ## ✅ You're All Set!
 
 You’ve successfully completed the onboarding process. You can now deploy and
-manage services using dFlow 🚀
+manage services using inTake 🚀

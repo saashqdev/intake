@@ -9,14 +9,14 @@ import {
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useState } from 'react'
 
-import { checkAccountConnection } from '@/actions/cloud/dFlow'
+import { checkAccountConnection } from '@/actions/cloud/inTake'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 
-import { useDflowVpsForm } from './DflowVpsFormProvider'
+import { useIntakeVpsForm } from './IntakeVpsFormProvider'
 
 export const AccountConnectionStatus = () => {
-  const { selectedAccount } = useDflowVpsForm()
+  const { selectedAccount } = useIntakeVpsForm()
   const [connectionStatus, setConnectionStatus] = useState<{
     isConnected: boolean
     error?: string

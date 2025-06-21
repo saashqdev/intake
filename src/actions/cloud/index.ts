@@ -3,12 +3,12 @@
 import axios from 'axios'
 import { revalidatePath } from 'next/cache'
 
-import { DFLOW_CONFIG } from '@/lib/constants'
+import { INTAKE_CONFIG } from '@/lib/constants'
 import { protectedClient } from '@/lib/safe-action'
 
 import {
   cloudProviderAccountsSchema,
-  syncDflowServersSchema,
+  syncIntakeServersSchema,
 } from './validator'
 
 export const getCloudProvidersAccountsAction = protectedClient
@@ -42,16 +42,16 @@ export const getCloudProvidersAccountsAction = protectedClient
     return docs
   })
 
-export const syncDflowServersAction = protectedClient
+export const syncIntakeServersAction = protectedClient
   .metadata({
-    actionName: 'syncDflowServersAction',
+    actionName: 'syncIntakeServersAction',
   })
-  .schema(syncDflowServersSchema)
+  .schema(syncIntakeServersSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const { userTenant, payload } = ctx
 
-    if (!DFLOW_CONFIG.URL || !DFLOW_CONFIG.AUTH_SLUG) {
+    if (!INTAKE_CONFIG.URL || !INTAKE_CONFIG.AUTH_SLUG) {
       throw new Error('Environment variables configuration missing.')
     }
 
@@ -60,15 +60,15 @@ export const syncDflowServersAction = protectedClient
       id,
     })
 
-    if (account.type === 'dFlow') {
-      const key = account?.dFlowDetails?.accessToken!
+    if (account.type === 'inTake') {
+      const key = account?.inTakeDetails?.accessToken!
 
       // 1. Fetching all servers
       const ordersResponse = await axios.get(
-        `${DFLOW_CONFIG.URL}/api/vpsOrders`,
+        `${INTAKE_CONFIG.URL}/api/vpsOrders`,
         {
           headers: {
-            Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${key}`,
+            Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${key}`,
           },
         },
       )
@@ -116,10 +116,10 @@ export const syncDflowServersAction = protectedClient
 
       // 5. fetch all secrets to attach to the servers
       const secretsResponse = await axios.get(
-        `${DFLOW_CONFIG.URL}/api/secrets`,
+        `${INTAKE_CONFIG.URL}/api/secrets`,
         {
           headers: {
-            Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${key}`,
+            Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${key}`,
           },
         },
       )
@@ -201,7 +201,7 @@ export const syncDflowServersAction = protectedClient
             tenant: userTenant.tenant?.id,
             cloudProviderAccount: id,
             port: 22, // Default port for SSH
-            provider: 'dflow',
+            provider: 'intake',
             username: `${order.instanceResponse.defaultUser}`,
             sshKey: sshKeyID,
           },

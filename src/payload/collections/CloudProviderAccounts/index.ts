@@ -32,7 +32,7 @@ export const CloudProviderAccounts: CollectionConfig = {
       type: 'select',
       label: 'Type',
       options: [
-        { label: 'dFlow', value: 'dFlow' },
+        { label: 'inTake', value: 'inTake' },
         { label: 'AWS', value: 'aws' },
         { label: 'Azure', value: 'azure' },
         { label: 'Google Cloud Platform', value: 'gcp' },
@@ -41,15 +41,15 @@ export const CloudProviderAccounts: CollectionConfig = {
       required: true,
     },
 
-    // dFlow
+    // inTake
     {
-      name: 'dFlowDetails',
+      name: 'inTakeDetails',
       type: 'group',
       fields: [
         encryptedField({ name: 'accessToken', type: 'text', required: true }),
       ],
       admin: {
-        condition: data => data.type === 'dFlow',
+        condition: data => data.type === 'inTake',
       },
     },
 

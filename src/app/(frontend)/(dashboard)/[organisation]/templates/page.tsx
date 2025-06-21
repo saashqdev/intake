@@ -22,7 +22,7 @@ const page = async ({ params }: PageProps) => {
   const publicTemplates = await getPublicTemplatesAction()
 
   const accounts = await getCloudProvidersAccountsAction({
-    type: 'dFlow',
+    type: 'inTake',
   })
 
   return (

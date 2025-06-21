@@ -80,17 +80,17 @@ export const checkDuplicateCloudAccounts: CollectionBeforeValidateHook<
     )
 
     switch (data.type) {
-      case 'dFlow':
-        if (data.dFlowDetails?.accessToken) {
+      case 'inTake':
+        if (data.inTakeDetails?.accessToken) {
           const duplicateAccount = existingAccountsOfSameType.find(
             account =>
-              account.dFlowDetails?.accessToken ===
-              data.dFlowDetails?.accessToken,
+              account.inTakeDetails?.accessToken ===
+              data.inTakeDetails?.accessToken,
           )
 
           if (duplicateAccount) {
             validationErrors.push(
-              `This dFlow account is already connected as "${duplicateAccount.name}". Each account can only be connected once per tenant.`,
+              `This inTake account is already connected as "${duplicateAccount.name}". Each account can only be connected once per tenant.`,
             )
           }
         }

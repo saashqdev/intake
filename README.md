@@ -1,21 +1,21 @@
-# dFlow
+# inTake
 
-Dflow is a self-hosted platform for deploying and managing applications, similar
-to Vercel, Railway, or Heroku. dFlow provides automated deployment workflows,
-container orchestration, and infrastructure management capabilities while giving
-you full control over your infrastructure and data.
+Intake is a self-hosted platform for deploying and managing applications,
+similar to Vercel, Railway, or Heroku. inTake provides automated deployment
+workflows, container orchestration, and infrastructure management capabilities
+while giving you full control over your infrastructure and data.
 
 ## Self Hosting
 
 ### Railway
 
-You can deploy dFlow on Railway using the button below.
+You can deploy inTake on Railway using the button below.
 
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/template/NNuPfr?referralCode=I9okFq)
 
 ### Docker
 
-You can deploy dFlow as docker-image on your server, follow this guide👇
+You can deploy inTake as docker-image on your server, follow this guide👇
 
 #### Requirements
 
@@ -26,16 +26,16 @@ You can deploy dFlow as docker-image on your server, follow this guide👇
 
 #### Process
 
-1. clone dflow
+1. clone intake
 
 ```bash
-git clone https://github.com/akhil-naidu/dflow dflow
+git clone https://github.com/saashqdev/intake intake
 ```
 
 2. change into directory
 
 ```bash
-cd dflow
+cd intake
 ```
 
 3. create a mongodb instance
@@ -98,11 +98,11 @@ docker run -d \
 # pass the mongodb, redis database-url's as build-arguments
 # replace NEXT_PUBLIC_WEBSITE_URL with your domain
 docker build \
-  --build-arg DATABASE_URI="mongodb://username:password@localhost:27017/dflow?authSource=admin" \
+  --build-arg DATABASE_URI="mongodb://username:password@localhost:27017/intake?authSource=admin" \
   --build-arg REDIS_URI="redis://:password@localhost:6379" \
   --build-arg PAYLOAD_SECRET="1781c9a00336ffa7fdf27ce7" \
   --build-arg NEXT_PUBLIC_WEBSITE_URL="localhost:3000" \
-  -t dflow .
+  -t intake .
 ```
 
 4. Run the docker-image
@@ -111,9 +111,9 @@ docker build \
 # pass the mongodb, redis database-url's as environment variables
 # replace NEXT_PUBLIC_WEBSITE_URL with your domain
 docker run -d -p 3000:3000 \
-  -e DATABASE_URI="mongodb://username:password@localhost:27017/dflow?authSource=admin" \
+  -e DATABASE_URI="mongodb://username:password@localhost:27017/intake?authSource=admin" \
   -e REDIS_URI="redis://:password@localhost:6379" \
   -e PAYLOAD_SECRET="1781c9a00336ffa7fdf27ce7"
   -e NEXT_PUBLIC_WEBSITE_URL="localhost:3000"
-  dflow
+  intake
 ```

@@ -54,8 +54,8 @@ const ForgotPasswordForm: React.FC = () => {
       <div className='mx-auto w-full max-w-md drop-shadow-2xl'>
         <div className='w-full max-w-md p-6'>
           <Image
-            src='/images/dflow-no-bg.png'
-            alt='dFlow logo'
+            src='/images/intake-no-bg.png'
+            alt='inTake logo'
             className='m-auto mb-4'
             width={50}
             height={50}

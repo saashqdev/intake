@@ -28,13 +28,13 @@ export default async function Layout({
       <div className='mt-20 flex items-center gap-2 text-2xl font-semibold'>
         {/* <Workflow className='text-primary' /> */}
         <Image
-          src='/images/dflow-no-bg.png'
-          alt='dFlow-logo'
+          src='/images/intake-no-bg.png'
+          alt='inTake-logo'
           width={32}
           height={32}
           className='object-contain'
         />
-        <p>dFlow Onboarding</p>
+        <p>inTake Onboarding</p>
       </div>
 
       <Card className='mb-20 w-full max-w-4xl'>

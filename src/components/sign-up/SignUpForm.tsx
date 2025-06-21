@@ -63,8 +63,8 @@ const SignUpForm: React.FC<SignupProps> = ({ token }) => {
     <div className='flex min-h-screen w-full items-center justify-center'>
       <div className='w-full max-w-md p-6'>
         <Image
-          src='/images/dflow-no-bg.png'
-          alt='dFlow logo'
+          src='/images/intake-no-bg.png'
+          alt='inTake logo'
           className='m-auto mb-4'
           width={50}
           height={50}

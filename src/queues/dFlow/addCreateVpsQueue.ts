@@ -3,7 +3,7 @@ import axios, { AxiosError } from 'axios'
 import { RequiredDataFromCollection, getPayload } from 'payload'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
-import { DFLOW_CONFIG } from '@/lib/constants'
+import { INTAKE_CONFIG } from '@/lib/constants'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent } from '@/lib/sendEvent'
 import { Server, SshKey, Tenant } from '@/payload-types'
@@ -100,10 +100,10 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
 
               // Check for existing secret
               const { data: existingSecretsRes } = await axios.get(
-                `${DFLOW_CONFIG.URL}/api/secrets?where[name][equals]=${encodeURIComponent(key.name)}`,
+                `${INTAKE_CONFIG.URL}/api/secrets?where[name][equals]=${encodeURIComponent(key.name)}`,
                 {
                   headers: {
-                    Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+                    Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${token}`,
                   },
                   timeout: 10000,
                 },
@@ -129,7 +129,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
 
               // Create new secret if no match found
               const { data: createdSecretRes } = await axios.post(
-                `${DFLOW_CONFIG.URL}/api/secrets`,
+                `${INTAKE_CONFIG.URL}/api/secrets`,
                 {
                   name: key.name,
                   type: 'ssh',
@@ -138,7 +138,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
                 },
                 {
                   headers: {
-                    Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+                    Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${token}`,
                   },
                   timeout: 10000,
                 },
@@ -193,11 +193,11 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
         )
 
         const { data: createdVpsOrderRes } = await axios.post(
-          `${DFLOW_CONFIG.URL}/api/vpsOrders`,
+          `${INTAKE_CONFIG.URL}/api/vpsOrders`,
           vpsData,
           {
             headers: {
-              Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+              Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${token}`,
             },
             timeout: 30000,
           },
@@ -217,14 +217,14 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
           port: 22,
           username: 'root',
           sshKey: secretsAndKeys[0]?.sshKeyId,
-          provider: 'dflow',
+          provider: 'intake',
           tenant: tenant.id,
           cloudProviderAccount: accountDetails.id,
-          dflowVpsDetails: {
+          intakeVpsDetails: {
             id: createdVpsOrder.id,
             instanceId: createdVpsOrder.instanceId,
             status: createdVpsOrder.instanceResponse.status as NonNullable<
-              Server['dflowVpsDetails']
+              Server['intakeVpsDetails']
             >['status'],
           },
         }
@@ -252,10 +252,10 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
                 )
 
                 const { data: instanceStatusRes } = await axios.get(
-                  `${DFLOW_CONFIG.URL}/api/vpsOrders?where[instanceId][equals]=${createdVpsOrder.instanceId}`,
+                  `${INTAKE_CONFIG.URL}/api/vpsOrders?where[instanceId][equals]=${createdVpsOrder.instanceId}`,
                   {
                     headers: {
-                      Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+                      Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${token}`,
                     },
                     timeout: 10000,
                   },
@@ -274,12 +274,12 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
                 const newIp = order.instanceResponse?.ipConfig?.v4?.ip
 
                 if (
-                  createdServer.dflowVpsDetails?.status !== newStatus ||
+                  createdServer.intakeVpsDetails?.status !== newStatus ||
                   createdServer.ip !== newIp
                 ) {
                   const updateData: any = {
-                    dflowVpsDetails: {
-                      ...createdServer.dflowVpsDetails,
+                    intakeVpsDetails: {
+                      ...createdServer.intakeVpsDetails,
                       status: newStatus,
                     },
                   }

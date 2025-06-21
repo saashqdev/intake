@@ -1,14 +1,14 @@
 import LayoutClient from '../../layout.client'
 
-import { getDFlowPlansAction, getDflowUser } from '@/actions/cloud/dFlow'
+import { getINTakePlansAction, getIntakeUser } from '@/actions/cloud/inTake'
 import { getAddServerDetails } from '@/actions/pages/server'
-import DflowCloudDrawer from '@/components/Integrations/dFlow/Drawer'
+import IntakeCloudDrawer from '@/components/Integrations/inTake/Drawer'
 import ServerForm from '@/components/servers/ServerForm'
 
 const SuspendedAddNewServerPage = async () => {
   const result = await getAddServerDetails()
-  const dFlowDetails = await getDflowUser()
-  const vpsPlans = await getDFlowPlansAction()
+  const inTakeDetails = await getIntakeUser()
+  const vpsPlans = await getINTakePlansAction()
 
   const sshKeys = result?.data?.sshKeys ?? []
   const securityGroups = result?.data?.securityGroups ?? []
@@ -18,14 +18,14 @@ const SuspendedAddNewServerPage = async () => {
       <ServerForm
         sshKeys={sshKeys}
         securityGroups={securityGroups}
-        dFlowAccounts={
-          dFlowDetails?.data?.account ? [dFlowDetails?.data?.account] : []
+        inTakeAccounts={
+          inTakeDetails?.data?.account ? [inTakeDetails?.data?.account] : []
         }
         vpsPlans={vpsPlans?.data ?? []}
-        dFlowUser={dFlowDetails?.data?.user}
+        inTakeUser={inTakeDetails?.data?.user}
       />
 
-      <DflowCloudDrawer />
+      <IntakeCloudDrawer />
     </>
   )
 }

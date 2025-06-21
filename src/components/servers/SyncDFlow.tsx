@@ -11,9 +11,9 @@ import { z } from 'zod'
 
 import {
   getCloudProvidersAccountsAction,
-  syncDflowServersAction,
+  syncIntakeServersAction,
 } from '@/actions/cloud'
-import { syncDflowServersSchema } from '@/actions/cloud/validator'
+import { syncIntakeServersSchema } from '@/actions/cloud/validator'
 import {
   Dialog,
   DialogContent,
@@ -39,10 +39,10 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-const SyncDFlow = () => {
+const SyncINTake = () => {
   const [open, setOpen] = useState(false)
-  const form = useForm<z.infer<typeof syncDflowServersSchema>>({
-    resolver: zodResolver(syncDflowServersSchema),
+  const form = useForm<z.infer<typeof syncIntakeServersSchema>>({
+    resolver: zodResolver(syncIntakeServersSchema),
   })
 
   const {
@@ -51,8 +51,8 @@ const SyncDFlow = () => {
     result,
   } = useAction(getCloudProvidersAccountsAction)
 
-  const { execute: syncDflowServers, isPending: isSyncingDflow } = useAction(
-    syncDflowServersAction,
+  const { execute: syncIntakeServers, isPending: isSyncingIntake } = useAction(
+    syncIntakeServersAction,
     {
       onSuccess: ({ data }) => {
         toast.success(data?.message || 'Servers synced successfully')
@@ -66,11 +66,11 @@ const SyncDFlow = () => {
   )
 
   useEffect(() => {
-    execute({ type: 'dFlow' })
+    execute({ type: 'inTake' })
   }, [])
 
-  function onSubmit(values: z.infer<typeof syncDflowServersSchema>) {
-    syncDflowServers({ id: values.id })
+  function onSubmit(values: z.infer<typeof syncIntakeServersSchema>) {
+    syncIntakeServers({ id: values.id })
   }
 
   const accounts = result?.data || []
@@ -78,7 +78,7 @@ const SyncDFlow = () => {
     <Dialog
       open={open}
       onOpenChange={state => {
-        if (isSyncingDflow) {
+        if (isSyncingIntake) {
           return
         }
 
@@ -87,15 +87,15 @@ const SyncDFlow = () => {
       <DialogTrigger asChild>
         <Button variant={'outline'}>
           <ArrowUpDown />
-          Sync from dFlow
+          Sync from inTake
         </Button>
       </DialogTrigger>
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Sync from dFlow</DialogTitle>
+          <DialogTitle>Sync from inTake</DialogTitle>
           <DialogDescription>
-            Sync sever details of your dFlow account.
+            Sync sever details of your inTake account.
           </DialogDescription>
         </DialogHeader>
 
@@ -144,8 +144,8 @@ const SyncDFlow = () => {
             <DialogFooter>
               <Button
                 type='submit'
-                isLoading={isSyncingDflow}
-                disabled={isFetchingAccounts || isSyncingDflow}>
+                isLoading={isSyncingIntake}
+                disabled={isFetchingAccounts || isSyncingIntake}>
                 Sync
               </Button>
             </DialogFooter>
@@ -156,4 +156,4 @@ const SyncDFlow = () => {
   )
 }
 
-export default SyncDFlow
+export default SyncINTake

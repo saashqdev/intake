@@ -20,9 +20,9 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata = {
-  title: 'dFlow',
+  title: 'inTake',
   description:
-    'A self-hosted platform for deploying and managing applications, similar to Vercel, Railway, or Heroku. dFlow provides automated deployment workflows, container orchestration, and infrastructure management capabilities while giving you full control over your infrastructure and data.',
+    'A self-hosted platform for deploying and managing applications, similar to Vercel, Railway, or Heroku. inTake provides automated deployment workflows, container orchestration, and infrastructure management capabilities while giving you full control over your infrastructure and data.',
   icons: {
     icon: '/images/favicon.ico',
     shortcut: '/images/favicon.ico',

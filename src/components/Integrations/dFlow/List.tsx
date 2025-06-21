@@ -4,15 +4,15 @@ import { format } from 'date-fns'
 import { Pencil, Trash2, Unlink } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 
-import { deleteDFlowAccountAction } from '@/actions/cloud/dFlow'
+import { deleteINTakeAccountAction } from '@/actions/cloud/inTake'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { CloudProviderAccount } from '@/payload-types'
 
-import DFlowForm from './Form'
+import INTakeForm from './Form'
 
 type RefetchType = (input: {
-  type: 'aws' | 'azure' | 'gcp' | 'digitalocean' | 'dFlow'
+  type: 'aws' | 'azure' | 'gcp' | 'digitalocean' | 'inTake'
 }) => void
 
 const CloudProviderCard = ({
@@ -25,7 +25,7 @@ const CloudProviderCard = ({
   existingAccountsCount?: number
 }) => {
   const { execute: deleteAccount, isPending: deletingAccount } = useAction(
-    deleteDFlowAccountAction,
+    deleteINTakeAccountAction,
     {
       onSuccess: ({ data }: any) => {
         if (data?.id) refetch?.({ type: account.type })
@@ -47,14 +47,14 @@ const CloudProviderCard = ({
 
         <div className='flex items-center gap-4'>
           {/* Edit and Delete actions */}
-          <DFlowForm
+          <INTakeForm
             account={account}
             refetch={refetch}
             existingAccountsCount={existingAccountsCount}>
             <Button size='icon' variant='outline'>
               <Pencil size={20} />
             </Button>
-          </DFlowForm>
+          </INTakeForm>
 
           <Button
             size='icon'

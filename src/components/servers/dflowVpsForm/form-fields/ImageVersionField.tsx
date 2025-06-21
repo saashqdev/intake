@@ -1,4 +1,4 @@
-import { useDflowVpsForm } from '../DflowVpsFormProvider'
+import { useIntakeVpsForm } from '../IntakeVpsFormProvider'
 import { formatValue } from '../utils'
 import { useFormContext } from 'react-hook-form'
 
@@ -21,7 +21,7 @@ import {
 
 export const ImageVersionField = () => {
   const form = useFormContext()
-  const { vpsPlan } = useDflowVpsForm()
+  const { vpsPlan } = useIntakeVpsForm()
 
   const selectedImageId = form.watch('image.imageId')
   const selectedImage = vpsPlan?.images?.find(i => i.id === selectedImageId)

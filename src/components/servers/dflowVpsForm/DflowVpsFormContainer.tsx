@@ -2,41 +2,41 @@
 
 import { useState } from 'react'
 
-import { VpsPlan } from '@/actions/cloud/dFlow/types'
+import { VpsPlan } from '@/actions/cloud/inTake/types'
 import { CloudProviderAccount, SshKey } from '@/payload-types'
 
 import { AccountConnectionStatus } from './AccountConnectionStatus'
 import { AccountSelectionSection } from './AccountSelectionSection'
-import { DflowVpsFormProvider } from './DflowVpsFormProvider'
 import { HeaderSection } from './HeaderSection'
+import { IntakeVpsFormProvider } from './IntakeVpsFormProvider'
 import { OrderForm } from './OrderForm'
 import { PaymentStatusSection } from './PaymentStatusSection'
 import { SpecificationsSection } from './SpecificationsSection'
 import { TrafficSection } from './TrafficSection'
 
-export const DflowVpsFormContainer = ({
+export const IntakeVpsFormContainer = ({
   vpsPlan,
-  dFlowAccounts,
-  selectedDFlowAccount,
+  inTakeAccounts,
+  selectedINTakeAccount,
   sshKeys,
-  dFlowUser,
+  inTakeUser,
 }: {
   vpsPlan: VpsPlan
-  dFlowAccounts?: CloudProviderAccount[]
-  selectedDFlowAccount?: CloudProviderAccount
+  inTakeAccounts?: CloudProviderAccount[]
+  selectedINTakeAccount?: CloudProviderAccount
   sshKeys: SshKey[]
-  dFlowUser: any
+  inTakeUser: any
 }) => {
   const [selectedAccount, setSelectedAccount] = useState<{
     id: string
     token: string
   }>({
-    id: dFlowAccounts?.[0]?.id || '',
-    token: dFlowAccounts?.[0]?.dFlowDetails?.accessToken || '',
+    id: inTakeAccounts?.[0]?.id || '',
+    token: inTakeAccounts?.[0]?.inTakeDetails?.accessToken || '',
   })
 
   return (
-    <DflowVpsFormProvider
+    <IntakeVpsFormProvider
       vpsPlan={vpsPlan}
       sshKeys={sshKeys}
       selectedAccount={selectedAccount}
@@ -44,7 +44,7 @@ export const DflowVpsFormContainer = ({
       <div className='space-y-6'>
         <HeaderSection vpsPlan={vpsPlan} />
         <AccountSelectionSection
-          dFlowAccounts={dFlowAccounts}
+          inTakeAccounts={inTakeAccounts}
           selectedAccount={selectedAccount}
           onAccountChange={setSelectedAccount}
         />
@@ -54,8 +54,8 @@ export const DflowVpsFormContainer = ({
         </div>
         <SpecificationsSection vpsPlan={vpsPlan} />
         <TrafficSection vpsPlan={vpsPlan} />
-        <OrderForm dFlowUser={dFlowUser} />
+        <OrderForm inTakeUser={inTakeUser} />
       </div>
-    </DflowVpsFormProvider>
+    </IntakeVpsFormProvider>
   )
 }

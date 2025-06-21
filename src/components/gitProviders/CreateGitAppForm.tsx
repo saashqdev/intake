@@ -13,7 +13,7 @@ const CreateGitAppForm = ({ onboarding = false }: { onboarding?: boolean }) => {
 
   const value = JSON.stringify({
     redirect_url: `${githubCallbackURL}/api/webhook/providers/github?onboarding=${onboarding}`,
-    name: `dFlow-${formattedDate}`,
+    name: `inTake-${formattedDate}`,
     url: githubCallbackURL,
     hook_attributes: {
       url: `${githubCallbackURL}/api/deploy/github`,

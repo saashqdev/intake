@@ -10,16 +10,16 @@ import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 
-import { checkPaymentMethodAction } from '@/actions/cloud/dFlow'
+import { checkPaymentMethodAction } from '@/actions/cloud/inTake'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 
-import { useDflowVpsForm } from './DflowVpsFormProvider'
+import { useIntakeVpsForm } from './IntakeVpsFormProvider'
 
 export const PaymentStatusSection = () => {
   const form = useFormContext()
-  const { selectedAccount, pricing } = useDflowVpsForm()
+  const { selectedAccount, pricing } = useIntakeVpsForm()
   const [paymentData, setPaymentData] = useState<{
     walletBalance: number
     validCardCount: number
@@ -115,9 +115,9 @@ export const PaymentStatusSection = () => {
                 size='sm'
                 className='w-full gap-2 sm:w-fit'
                 onClick={() =>
-                  window.open('https://dflow.sh/profile/cards', '_blank')
+                  window.open('https://intake.sh/profile/cards', '_blank')
                 }>
-                Open dFlow
+                Open inTake
                 <ExternalLink className='h-4 w-4' />
               </Button>
             </div>

@@ -147,7 +147,7 @@ export const sendInvitationLinkAction = userClient
 
     await payload.sendEmail({
       to: email,
-      from: `"Team dFlow" <${env.RESEND_SENDER_EMAIL}>`,
+      from: `"Team inTake" <${env.RESEND_SENDER_EMAIL}>`,
       subject: 'You have been invited',
       html: await TeamInvitation({
         actionLabel: 'Team Invitation',

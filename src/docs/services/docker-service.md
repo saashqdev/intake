@@ -72,7 +72,7 @@ Configure core service settings for your Docker container.
 </table>
 
 You can use any public or private Docker image as long as the registry is
-accessible from the dFlow platform.
+accessible from the inTake platform.
 
 ---
 
@@ -151,6 +151,6 @@ Docker services support full control from the UI:
 
 ## ✅ Summary
 
-Docker Services on dFlow offer a flexible deployment path for teams that rely on
-container workflows. Whether you use public registries or manage your own, dFlow
+Docker Services on inTake offer a flexible deployment path for teams that rely on
+container workflows. Whether you use public registries or manage your own, inTake
 gives you full control over the deployment lifecycle.

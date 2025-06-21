@@ -51,7 +51,7 @@ Use reference variables to pull values from other services or the platform.
 
 To reference the public domain of another App Service:
 
-Example: `NEXT_PUBLIC_WEBSITE_URL={{ my-service-name.DFLOW_PUBLIC_DOMAIN }}`
+Example: `NEXT_PUBLIC_WEBSITE_URL={{ my-service-name.INTAKE_PUBLIC_DOMAIN }}`
 
 ---
 
@@ -134,7 +134,7 @@ PAYLOAD_SECRET=`{{ secret(64, "abcdefghijklMNOPQRSTUVWXYZ") }}`
     </tr>
     <tr>
       <td>Domain reference</td>
-      <td><code>APP_URL=`{{ my-service.DFLOW_PUBLIC_DOMAIN }}`</code></td>
+      <td><code>APP_URL=`{{ my-service.INTAKE_PUBLIC_DOMAIN }}`</code></td>
     </tr>
     <tr>
       <td>Database reference</td>
@@ -164,4 +164,4 @@ PAYLOAD_SECRET=`{{ secret(64, "abcdefghijklMNOPQRSTUVWXYZ") }}`
 ---
 
 Environment variables give you secure, configurable access to settings, URLs,
-credentials, and more — dynamically tied to your app’s architecture in dFlow.
+credentials, and more — dynamically tied to your app’s architecture in inTake.

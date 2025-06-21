@@ -101,8 +101,8 @@ export const databaseOptions = [
   },
 ]
 
-export const DFLOW_CONFIG = {
-  URL: 'https://dflow.sh',
+export const INTAKE_CONFIG = {
+  URL: 'https://intake.sh',
   AUTH_SLUG: 'users',
 }
 
