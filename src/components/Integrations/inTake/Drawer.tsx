@@ -1,26 +1,11 @@
 'use client'
 
-import GithubIntegrationsLoading from '../GithubIntegrationsLoading'
-import { Link } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect } from 'react'
 
 import { getCloudProvidersAccountsAction } from '@/actions/cloud'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
-import { integrationsList } from '@/lib/integrationList'
-
-import INTakeForm from './Form'
-import CloudProvidersList from './List'
+import { Sheet } from '@/components/ui/sheet'
 
 const IntakeDrawer = () => {
   const [activeSlide, setActiveSlide] = useQueryState(
@@ -28,9 +13,9 @@ const IntakeDrawer = () => {
     parseAsString.withDefault(''),
   )
 
-  const integration = integrationsList.find(
+  /*   const integration = integrationsList.find(
     integration => integration.slug === 'intake',
-  )
+  ) Dave commented */
 
   const { execute, isPending, result } = useAction(
     getCloudProvidersAccountsAction,
@@ -42,14 +27,14 @@ const IntakeDrawer = () => {
     }
   }, [activeSlide, result])
 
-  const icon = integration ? (
+  /*   const icon = integration ? (
     <div className='mb-2 flex size-14 items-center justify-center rounded-md border'>
       <div className='relative'>
         <integration.icon className='size-8 blur-lg saturate-200' />
         <integration.icon className='absolute inset-0 size-8' />
       </div>
     </div>
-  ) : null
+  ) : null Dave commented */
 
   // Count existing inTake accounts
   const intakeAccountsCount = result?.data?.length || 0
@@ -61,7 +46,7 @@ const IntakeDrawer = () => {
       onOpenChange={state => {
         setActiveSlide(state ? 'intake' : '')
       }}>
-      <SheetContent className='flex w-full flex-col justify-between sm:max-w-lg'>
+      {/* <SheetContent className='flex w-full flex-col justify-between sm:max-w-lg'>
         <SheetHeader className='text-left'>
           <SheetTitle className='flex w-full items-center gap-3 text-base'>
             {icon} Integration Settings
@@ -103,7 +88,7 @@ const IntakeDrawer = () => {
             </div>
           )}
         </SheetFooter>
-      </SheetContent>
+      </SheetContent> Dave commented */}
     </Sheet>
   )
 }

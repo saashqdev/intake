@@ -662,9 +662,9 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
               )}
             </div>
           </CardHeader>
-          <CardContent className='p-6'>
+          {/* <CardContent className='p-6'>
             {renderINTakeAccountSection()}
-          </CardContent>
+          </CardContent> Dave commented */}
         </Card>
 
         {/* Cloud Providers Section */}

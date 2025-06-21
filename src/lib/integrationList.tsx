@@ -6,17 +6,9 @@ import {
   DigitalOcean,
   Docker,
   GoogleCloudPlatform,
-  inTake,
 } from '@/components/icons'
 
 export const integrationsList = [
-  {
-    label: 'inTake',
-    icon: inTake,
-    description: 'Manage your inTake account & servers',
-    slug: 'intake',
-    live: true,
-  },
   {
     label: 'Amazon Web Services',
     icon: AmazonWebServices,

@@ -1,12 +1,5 @@
 import LayoutClient from '../layout.client'
-import {
-  AlertCircle,
-  ArrowUpRight,
-  Folder,
-  Gift,
-  Plus,
-  Server,
-} from 'lucide-react'
+import { AlertCircle, Folder, Plus, Server } from 'lucide-react'
 import Link from 'next/link'
 import { Suspense } from 'react'
 
@@ -67,7 +60,7 @@ const SuspendedDashboard = async ({
         </div>
 
         {/* Claim Credits Section */}
-        {!hasClaimedCredits && (
+        {/*{!hasClaimedCredits && (
           <div className='rounded-lg border border-info/50 bg-info-foreground/50 p-4 text-info'>
             <div className='flex w-full gap-4'>
               <Gift className='size-6 flex-shrink-0' />
@@ -92,7 +85,7 @@ const SuspendedDashboard = async ({
               </div>
             </div>
           </div>
-        )}
+        )} Dave commented */}
 
         {/* Server Alerts */}
         {!hasServers ? (
