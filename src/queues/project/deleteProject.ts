@@ -7,6 +7,7 @@ import { getPayload } from 'payload'
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
+import { extractSSHDetails } from '@/lib/ssh'
 
 interface QueueArgs {
   serverDetails: {
@@ -75,18 +76,8 @@ export const addDeleteProjectQueue = async (data: QueueArgs) => {
         })
 
         // Only delete from server if the option is enabled
-        if (
-          deleteFromServer &&
-          servicesList &&
-          typeof server === 'object' &&
-          typeof server.sshKey === 'object'
-        ) {
-          const sshDetails = {
-            privateKey: server.sshKey?.privateKey,
-            host: server?.ip,
-            username: server?.username,
-            port: server?.port,
-          }
+        if (deleteFromServer && servicesList && typeof server === 'object') {
+          const sshDetails = extractSSHDetails({ server })
 
           sendEvent({
             pub,

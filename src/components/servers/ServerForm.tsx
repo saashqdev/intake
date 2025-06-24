@@ -32,6 +32,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cloudProvidersList } from '@/lib/integrationList'
 import { CloudProviderAccount, SecurityGroup, SshKey } from '@/payload-types'
@@ -342,10 +349,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                 size='sm'
                 className='w-full gap-2 sm:w-fit'
                 onClick={() =>
-                  window.open(
-                    'https://demo.gointake.ca/profile/cards',
-                    '_blank',
-                  )
+                  window.open('https://intake.sh/profile/cards', '_blank')
                 }>
                 Open inTake
                 <ExternalLink className='h-4 w-4' />
@@ -559,7 +563,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
               {accountConnectionStatus.isConnected ? (
                 <CheckCircle className='mt-0.5 h-5 w-5 text-green-600' />
               ) : (
-                <XCircle className='mt-0.5 h-5 w-5 text-red-600' />
+                <XCircle className='mt-0.5 h-5 w-5' />
               )}
               <div className='flex-1'>
                 <AlertDescription>
@@ -623,7 +627,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
 
       <div className='space-y-6'>
         {/* inTake Section */}
-        {/*         <Card className='border shadow-sm'>
+        <Card className='border shadow-sm'>
           <CardHeader className='pb-0'>
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-3'>
@@ -658,7 +662,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
           <CardContent className='p-6'>
             {renderINTakeAccountSection()}
           </CardContent>
-        </Card> Dave commented */}
+        </Card>
 
         {/* Cloud Providers Section */}
         <Card className='border shadow-sm'>

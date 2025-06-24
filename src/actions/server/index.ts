@@ -3,10 +3,13 @@
 import dns from 'dns/promises'
 import isPortReachable from 'is-port-reachable'
 import { revalidatePath } from 'next/cache'
+import { NodeSSH } from 'node-ssh'
 
+import { dokku } from '@/lib/dokku'
 import { protectedClient } from '@/lib/safe-action'
 import { server } from '@/lib/server'
-import { dynamicSSH } from '@/lib/ssh'
+import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
+import { createSSH } from '@/lib/tailscale/ssh'
 import { addInstallRailpackQueue } from '@/queues/builder/installRailpack'
 import { addInstallDokkuQueue } from '@/queues/dokku/install'
 import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
@@ -14,6 +17,7 @@ import { addDeleteProjectsQueue } from '@/queues/project/deleteProjects'
 
 import {
   checkDNSConfigSchema,
+  checkHostnameConnectionSchema,
   checkServerConnectionSchema,
   completeServerOnboardingSchema,
   createServerSchema,
@@ -136,18 +140,15 @@ export const installDokkuAction = protectedClient
       depth: 10,
     })
 
+    const sshDetails = extractSSHDetails({ server: serverDetails })
+
     if (typeof serverDetails.sshKey === 'object') {
       const installationResponse = await addInstallDokkuQueue({
         serverDetails: {
           id: serverId,
           provider: serverDetails.provider,
         },
-        sshDetails: {
-          host: serverDetails.ip,
-          port: serverDetails.port,
-          privateKey: serverDetails.sshKey.privateKey,
-          username: serverDetails.username,
-        },
+        sshDetails,
         tenant: {
           slug: userTenant.tenant.slug,
         },
@@ -202,7 +203,7 @@ export const updateServerDomainAction = protectedClient
             prevDomain => !domains.includes(prevDomain.domain),
           )
 
-    const response = await payload.update({
+    const server = await payload.update({
       id,
       data: {
         domains: filteredDomains,
@@ -211,11 +212,10 @@ export const updateServerDomainAction = protectedClient
       depth: 10,
     })
 
-    const privateKey =
-      typeof response.sshKey === 'object' ? response.sshKey.privateKey : ''
-
     // for delete action remove domain from dokku
     if (operation === 'remove') {
+      const sshDetails = extractSSHDetails({ server })
+
       await addManageServerDomainQueue({
         serverDetails: {
           global: {
@@ -224,12 +224,7 @@ export const updateServerDomainAction = protectedClient
           },
           id,
         },
-        sshDetails: {
-          host: response.ip,
-          port: response.port,
-          username: response.username,
-          privateKey,
-        },
+        sshDetails,
         tenant: {
           slug: userTenant.tenant.slug,
         },
@@ -255,25 +250,20 @@ export const installRailpackAction = protectedClient
       depth: 10,
     })
 
-    if (typeof serverDetails.sshKey === 'object') {
-      const installationResponse = await addInstallRailpackQueue({
-        serverDetails: {
-          id: serverId,
-        },
-        sshDetails: {
-          host: serverDetails.ip,
-          port: serverDetails.port,
-          privateKey: serverDetails.sshKey.privateKey,
-          username: serverDetails.username,
-        },
-        tenant: {
-          slug: userTenant.tenant.slug,
-        },
-      })
+    const sshDetails = extractSSHDetails({ server: serverDetails })
 
-      if (installationResponse.id) {
-        return { success: true }
-      }
+    const installationResponse = await addInstallRailpackQueue({
+      serverDetails: {
+        id: serverId,
+      },
+      sshDetails,
+      tenant: {
+        slug: userTenant.tenant.slug,
+      },
+    })
+
+    if (installationResponse.id) {
+      return { success: true }
     }
   })
 
@@ -342,14 +332,13 @@ export const syncServerDomainAction = protectedClient
     const { id, domains, operation } = clientInput
     const { payload, userTenant } = ctx
 
-    const response = await payload.findByID({
+    const server = await payload.findByID({
       id,
       collection: 'servers',
       depth: 10,
     })
 
-    const privateKey =
-      typeof response.sshKey === 'object' ? response.sshKey.privateKey : ''
+    const sshDetails = extractSSHDetails({ server })
 
     const queueResponse = await addManageServerDomainQueue({
       serverDetails: {
@@ -359,12 +348,7 @@ export const syncServerDomainAction = protectedClient
         },
         id,
       },
-      sshDetails: {
-        host: response.ip,
-        port: response.port,
-        username: response.username,
-        privateKey,
-      },
+      sshDetails,
       tenant: {
         slug: userTenant.tenant.slug,
       },
@@ -418,7 +402,7 @@ export const checkServerConnection = protectedClient
       try {
         // Attempt SSH connection
         ssh = await dynamicSSH({
-          host: ip,
+          ip: ip,
           port,
           privateKey,
           username,
@@ -556,5 +540,44 @@ export const checkServerConnection = protectedClient
         error:
           'Failed to connect to server. Please check your connection details and try again.',
       }
+    }
+  })
+
+export const checkHostnameConnection = protectedClient
+  .metadata({
+    actionName: 'checkHostnameConnection',
+  })
+  .schema(checkHostnameConnectionSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { serverId } = clientInput
+    const { payload } = ctx
+
+    const server = await payload.findByID({
+      collection: 'servers',
+      id: serverId,
+    })
+
+    if (!server.hostname || !server?.username) {
+      throw new Error('Missing hostname or username')
+    }
+
+    let ssh: NodeSSH | null = null
+
+    try {
+      // ssh = await dynamicSSH({
+      //   username: server.username,
+      //   hostname: server.hostname,
+      // })
+
+      ssh = await createSSH(server.hostname, server.username)
+
+      const appsList = await dokku.apps.list(ssh)
+
+      return appsList
+    } catch (error) {
+      const message = error instanceof Error ? error.message : ''
+      throw new Error(message)
+    } finally {
+      ssh?.dispose()
     }
   })
