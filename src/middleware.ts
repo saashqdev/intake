@@ -7,7 +7,7 @@ import { getCurrentUser } from './lib/getCurrentUser'
 async function enrichLogs(log: ILogtailLog): Promise<ILogtailLog> {
   return {
     ...log,
-    userId: getCurrentUser(),
+    user: getCurrentUser(),
   }
 }
 
