@@ -1,15 +1,6 @@
-import { ILogtailLog } from '@logtail/types'
 import { NextRequest, NextResponse } from 'next/server'
 
 import { INTAKE_CONFIG } from './lib/constants'
-import { getCurrentUser } from './lib/getCurrentUser'
-
-async function enrichLogs(log: ILogtailLog): Promise<ILogtailLog> {
-  return {
-    ...log,
-    user: getCurrentUser(),
-  }
-}
 
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
@@ -42,8 +33,6 @@ export function middleware(request: NextRequest) {
   const hasSubPath = segments.length > 2 // ensure there's something after /[organisation]
 
   const response = NextResponse.next()
-
-  enrichLogs
 
   if (
     organisation &&
