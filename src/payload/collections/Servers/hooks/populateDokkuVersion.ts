@@ -5,11 +5,6 @@ import { server } from '@/lib/server'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 import { Server } from '@/payload-types'
 
-const extractValue = ({ key, data }: { key: string; data: string }) => {
-  const match = data.match(new RegExp(`${key}:\\t(.+)`))
-  return match ? match[1] : null
-}
-
 export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
   doc,
   context,
@@ -23,7 +18,14 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
   }
 
   const sshKey = typeof doc.sshKey === 'object' ? doc.sshKey : undefined
-  const portIsOpen = await isPortReachable(doc.port, { host: doc.ip })
+
+  let portIsOpen: boolean = false
+
+  if (doc.hostname) {
+    portIsOpen = true
+  } else {
+    portIsOpen = await isPortReachable(doc.port, { host: doc.ip })
+  }
 
   let dokku: string | undefined
   let netdata: string | undefined
@@ -36,32 +38,39 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
     server: doc,
   })
 
-  if (sshKey && sshKey?.privateKey) {
-    if (portIsOpen) {
-      try {
-        const ssh = await dynamicSSH(sshDetails)
+  console.dir({ sshDetails }, { depth: null })
 
-        if (ssh.isConnected()) {
-          sshConnected = true
-        }
+  if (portIsOpen) {
+    try {
+      const ssh = await dynamicSSH(sshDetails)
 
-        const {
-          dokkuVersion,
-          linuxDistributionType,
-          linuxDistributionVersion,
-          netdataVersion,
-          railpackVersion,
-        } = await server.info({ ssh })
+      if (await ssh.isConnectedViaTailnet()) {
+        console.log('populate dokku', 'connected with one of tailscale method')
+        sshConnected = true
+      } else if (ssh.isConnected()) {
+        console.log('populate dokku', 'connected via pure node-ssh')
+        sshConnected = true
+      }
 
-        dokku = dokkuVersion
-        netdata = netdataVersion
-        linuxVersion = linuxDistributionVersion
-        linuxType = linuxDistributionType
-        railpack = railpackVersion
+      const {
+        dokkuVersion,
+        linuxDistributionType,
+        linuxDistributionVersion,
+        netdataVersion,
+        railpackVersion,
+      } = await server.info({ ssh })
 
-        ssh.dispose()
-      } catch (error) {
-        console.log({ error })
+      dokku = dokkuVersion
+      netdata = netdataVersion
+      linuxVersion = linuxDistributionVersion
+      linuxType = linuxDistributionType
+      railpack = railpackVersion
+
+      ssh.dispose()
+    } catch (error) {
+      console.log({ error })
+      if (sshKey && sshKey?.privateKey) {
+        console.log('no ssh keys')
       }
     }
   }
