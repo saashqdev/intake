@@ -46,7 +46,7 @@ interface QueueArgs {
 }
 
 const knownVariables = [
-  'INTAKE_PUBLIC_DOMAIN',
+  'DFLOW_PUBLIC_DOMAIN',
   // mongodb
   'MONGO_URI',
   'MONGO_PUBLIC_URI',
@@ -282,8 +282,8 @@ async function handleReferenceVariables({
       const [, serviceName, variableName] = refMatch
       // if variable is in knownVariable list, populating it's value
       if (isKnownVariable(variableName)) {
-        // for INTAKE_PUBLIC_DOMAIN variable checking domains of that service and updating the
-        if (variableName === 'INTAKE_PUBLIC_DOMAIN') {
+        // for DFLOW_PUBLIC_DOMAIN variable checking domains of that service and updating the
+        if (variableName === 'DFLOW_PUBLIC_DOMAIN') {
           try {
             const domains = await dokku.domains.list({
               ssh,
@@ -430,7 +430,7 @@ async function handleReferenceVariables({
                 databaseDetails: databaseExposureDetails.databaseDetails!,
                 variableName: databaseVariableName,
                 // todo: handle tailscale case
-                serverHost: 'ip' in sshDetails ? sshDetails?.ip : '',
+                serverHost: 'ip' in sshDetails ? sshDetails?.ip! : '',
               })
 
               return { [variable]: generatedValue }
@@ -492,7 +492,7 @@ async function handleReferenceVariables({
                             databaseDetails: databaseDetails!,
                             variableName: databaseVariableName,
                             serverHost:
-                              'ip' in sshDetails ? sshDetails?.ip : '',
+                              'ip' in sshDetails ? sshDetails?.ip! : '',
                           })
 
                         return { [variable]: generatedValue }
@@ -730,7 +730,7 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
               formattedVariables.push({ key, value, generatedValue })
               break
             // for reference variables check these cases
-            // check for variable value should be MONGO_URI, POSTGRES_URI, REDIS_URI, MARIA_URI, MYSQL_URI, INTAKE_PUBLIC_DOMAIN
+            // check for variable value should be MONGO_URI, POSTGRES_URI, REDIS_URI, MARIA_URI, MYSQL_URI, DFLOW_PUBLIC_DOMAIN
             // for any other variable value use $(dokku config:get serviceName variableName)
             case 'reference':
               const generateKeyPair = await handleReferenceVariables({
