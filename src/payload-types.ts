@@ -348,7 +348,7 @@ export interface Server {
       }[]
     | null;
   onboarded?: boolean | null;
-  provider: 'digitalocean' | 'aws' | 'gcp' | 'azure' | 'dflow' | 'other';
+  provider: 'digitalocean' | 'aws' | 'gcp' | 'azure' | 'intake' | 'other';
   cloudProviderAccount?: (string | null) | CloudProviderAccount;
   /**
    * AWS EC2 instance details
@@ -420,9 +420,9 @@ export interface Server {
     architecture?: string | null;
   };
   /**
-   * dFlow Vps details
+   * inTake Vps details
    */
-  dflowVpsDetails?: {
+  intakeVpsDetails?: {
     id?: string | null;
     instanceId?: number | null;
     status?:
@@ -484,8 +484,8 @@ export interface CloudProviderAccount {
   id: string;
   tenant?: (string | null) | Tenant;
   name: string;
-  type: 'dFlow' | 'aws' | 'azure' | 'gcp' | 'digitalocean';
-  dFlowDetails?: {
+  type: 'inTake' | 'aws' | 'azure' | 'gcp' | 'digitalocean';
+  inTakeDetails?: {
     accessToken: string;
   };
   awsDetails?: {
@@ -1321,7 +1321,7 @@ export interface ServersSelect<T extends boolean = true> {
         keyName?: T;
         architecture?: T;
       };
-  dflowVpsDetails?:
+  intakeVpsDetails?:
     | T
     | {
         id?: T;
@@ -1397,7 +1397,7 @@ export interface CloudProviderAccountsSelect<T extends boolean = true> {
   tenant?: T;
   name?: T;
   type?: T;
-  dFlowDetails?:
+  inTakeDetails?:
     | T
     | {
         accessToken?: T;

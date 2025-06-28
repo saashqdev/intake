@@ -170,7 +170,7 @@ const ServerCard = ({
                           </TooltipTrigger>
                           <TooltipContent>
                             <p>
-                              Dflow instance expires on{' '}
+                              Intake instance expires on{' '}
                               {format(
                                 result?.data?.next_billing_date,
                                 'MMM d, yyyy',

@@ -338,8 +338,8 @@ export const Servers: CollectionConfig = {
           value: 'azure',
         },
         {
-          label: 'dFlow',
-          value: 'dflow',
+          label: 'inTake',
+          value: 'intake',
         },
         {
           label: 'Other',
@@ -515,11 +515,11 @@ export const Servers: CollectionConfig = {
       ],
     },
     {
-      name: 'dflowVpsDetails',
+      name: 'intakeVpsDetails',
       type: 'group',
       admin: {
-        condition: data => data.provider === 'dflow',
-        description: 'dFlow Vps details',
+        condition: data => data.provider === 'intake',
+        description: 'inTake Vps details',
         position: 'sidebar',
       },
       fields: [
