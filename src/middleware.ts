@@ -1,15 +1,11 @@
-import { Logger } from '@logtail/next'
-import { NextFetchEvent, NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 import { INTAKE_CONFIG } from './lib/constants'
 
-export async function middleware(request: NextRequest, event: NextFetchEvent) {
+export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
   const hostname = request.headers.get('host') || ''
   const segments = pathname.split('/') // ['', 'acme', 'dashboard']
-
-  const logger = new Logger({ source: 'middleware' })
-  await logger.middleware(request, { logRequestDetails: ['body', 'nextUrl'] })
 
   // Check if domain is app.gointake.ca and redirect auth pages
   if (hostname === 'app.gointake.ca') {
@@ -58,8 +54,6 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
       path: '/',
     })
   }
-
-  event.waitUntil(logger.flush())
 
   return response
 }
