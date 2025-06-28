@@ -220,6 +220,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
           provider: 'intake',
           tenant: tenant.id,
           cloudProviderAccount: accountDetails.id,
+          preferConnectionType: 'tailscale',
           intakeVpsDetails: {
             id: createdVpsOrder.id,
             instanceId: createdVpsOrder.instanceId,
