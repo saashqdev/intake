@@ -33,12 +33,14 @@ ARG DATABASE_URI
 ARG REDIS_URI
 ARG PAYLOAD_SECRET
 ARG TAILSCALE_AUTH_KEY
+ARG TAILSCALE_OAUTH_CLIENT_SECRET
 
 ENV NEXT_PUBLIC_WEBSITE_URL=$NEXT_PUBLIC_WEBSITE_URL
 ENV DATABASE_URI=$DATABASE_URI
 ENV REDIS_URI=$REDIS_URI
 ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 ENV TAILSCALE_AUTH_KEY=$TAILSCALE_AUTH_KEY
+ENV TAILSCALE_OAUTH_CLIENT_SECRET=$TAILSCALE_OAUTH_CLIENT_SECRET
 
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
@@ -58,15 +60,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-RUN apk add --no-cache openssh
-
-# Generate host keys
-RUN ssh-keygen -A
-
-# Enable root login and password auth for testing
-RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config && \
-    echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config && \
-    echo 'root:rootpassword' | chpasswd
+RUN apk add --no-cache openssh-client
 
 # RUN mkdir -p /var/run/tailscale /var/lib/tailscale && chmod 777 /var/run/tailscale /var/lib/tailscale
 

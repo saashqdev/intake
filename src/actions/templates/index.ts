@@ -12,6 +12,7 @@ import {
 
 import { INTAKE_CONFIG, TEMPLATE_EXPR } from '@/lib/constants'
 import { protectedClient, publicClient } from '@/lib/safe-action'
+import { generateRandomString } from '@/lib/utils'
 import { Project, Service, Template } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 import { addTemplateDeployQueue } from '@/queues/template/deploy'
@@ -198,6 +199,8 @@ export const deployTemplateAction = protectedClient
       id: projectId,
     })
 
+    const projectServices = projectDetails?.services?.docs ?? []
+
     const templateDetails = await payload.findByID({
       collection: 'templates',
       id,
@@ -212,10 +215,18 @@ export const deployTemplateAction = protectedClient
     const serviceNames = {} as Record<string, string>
 
     services.forEach(service => {
-      const serviceName = handleGenerateName()
+      const uniqueSuffix = generateRandomString({ length: 4 })
+
+      const nameExists = projectServices?.find(serviceDetails => {
+        return (
+          typeof serviceDetails === 'object' &&
+          serviceDetails?.name === `${projectDetails.name}-${service.name}`
+        )
+      })
 
       if (service?.name) {
-        serviceNames[service?.name] = `${projectDetails.name}-${serviceName}`
+        serviceNames[service?.name] =
+          `${projectDetails.name}-${nameExists ? `${service.name}-${uniqueSuffix}` : service.name}`
       }
     })
 
@@ -260,8 +271,6 @@ export const deployTemplateAction = protectedClient
               }
             }
           }
-
-          console.log({ populatedValue })
 
           variables.push({
             ...variable,
@@ -335,6 +344,7 @@ export const deployTemplateAction = protectedClient
             dockerDetails: service?.dockerDetails,
             project: projectDetails?.id,
             variables: service?.variables,
+            volumes: service?.volumes,
             tenant,
           },
           depth: 10,
@@ -354,6 +364,7 @@ export const deployTemplateAction = protectedClient
               githubSettings: service?.githubSettings,
               providerType: service?.providerType,
               provider: service?.provider,
+              volumes: service?.volumes,
               builder: service?.builder,
               tenant,
             },
@@ -419,7 +430,7 @@ export const getAllTemplatesAction = protectedClient
     const { userTenant, payload } = ctx
 
     if (type === 'official') {
-      const res = await fetch('https://demo.gointake.ca/api/templates')
+      const res = await fetch('https://intake.sh/api/templates')
 
       if (!res.ok) {
         throw new Error('Failed to fetch official templates')
@@ -465,11 +476,21 @@ export const deployTemplateFromArchitectureAction = protectedClient
 
     const serviceNames = {} as Record<string, string>
 
+    const projectServices = projectDetails?.services?.docs ?? []
+
     services.forEach(service => {
-      const serviceName = handleGenerateName()
+      const uniqueSuffix = generateRandomString({ length: 4 })
+
+      const nameExists = projectServices?.find(serviceDetails => {
+        return (
+          typeof serviceDetails === 'object' &&
+          serviceDetails?.name === `${projectDetails.name}-${service.name}`
+        )
+      })
 
       if (service?.name) {
-        serviceNames[service?.name] = `${projectDetails.name}-${serviceName}`
+        serviceNames[service?.name] =
+          `${projectDetails.name}-${nameExists ? `${service.name}-${uniqueSuffix}` : service.name}`
       }
     })
 
@@ -587,6 +608,7 @@ export const deployTemplateFromArchitectureAction = protectedClient
             dockerDetails: service?.dockerDetails,
             project: projectDetails?.id,
             variables: service?.variables,
+            volumes: service?.volumes,
             tenant,
           },
           depth: 10,
@@ -607,6 +629,7 @@ export const deployTemplateFromArchitectureAction = protectedClient
               providerType: service?.providerType,
               provider: service?.provider,
               builder: service?.builder,
+              volumes: service?.volumes,
               tenant,
             },
             depth: 10,
@@ -645,9 +668,7 @@ export const getOfficialTemplateByIdAction = publicClient
   .action(async ({ clientInput }) => {
     const { templateId } = clientInput
 
-    const res = await fetch(
-      `https://demo.gointake.ca/api/templates/${templateId}`,
-    )
+    const res = await fetch(`https://intake.sh/api/templates/${templateId}`)
 
     if (!res.ok) {
       throw new Error('Failed to fetch template details')
@@ -675,6 +696,7 @@ export const deployTemplateWithProjectCreateAction = protectedClient
       projectDetails: projectData,
       projectId,
     } = clientInput
+
     if (isCreateNewProject) {
       const { version } = (await payload.findByID({
         collection: 'servers',
@@ -697,6 +719,7 @@ export const deployTemplateWithProjectCreateAction = protectedClient
           tenant,
         },
       })
+
       projectDetails = response
     } else {
       const project = await payload.findByID({
@@ -712,11 +735,21 @@ export const deployTemplateWithProjectCreateAction = protectedClient
 
     const serviceNames = {} as Record<string, string>
 
+    const projectServices = projectDetails?.services?.docs ?? []
+
     services.forEach(service => {
-      const serviceName = handleGenerateName()
+      const uniqueSuffix = generateRandomString({ length: 4 })
+
+      const nameExists = projectServices?.find(serviceDetails => {
+        return (
+          typeof serviceDetails === 'object' &&
+          serviceDetails?.name === `${projectDetails.name}-${service.name}`
+        )
+      })
 
       if (service?.name) {
-        serviceNames[service?.name] = `${projectDetails.name}-${serviceName}`
+        serviceNames[service?.name] =
+          `${projectDetails.name}-${nameExists ? `${service.name}-${uniqueSuffix}` : service.name}`
       }
     })
 
@@ -834,6 +867,7 @@ export const deployTemplateWithProjectCreateAction = protectedClient
             dockerDetails: service?.dockerDetails,
             project: projectDetails?.id,
             variables: service?.variables,
+            volumes: service?.volumes,
             tenant,
           },
           depth: 10,
@@ -854,6 +888,7 @@ export const deployTemplateWithProjectCreateAction = protectedClient
               providerType: service?.providerType,
               provider: service?.provider,
               builder: service?.builder,
+              volumes: service?.volumes,
               tenant,
             },
             depth: 10,

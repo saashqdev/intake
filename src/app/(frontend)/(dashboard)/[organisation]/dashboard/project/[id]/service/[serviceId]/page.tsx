@@ -9,6 +9,7 @@ import DomainList from '@/components/service/DomainList'
 import GeneralTab from '@/components/service/GeneralTab'
 import LogsTabClient from '@/components/service/LogsTabClient'
 import VariablesForm from '@/components/service/VariablesForm'
+import VolumesForm from '@/components/service/VolumesForm'
 import { ServiceSkeleton } from '@/components/skeletons/ServiceSkeleton'
 import { loadServicePageTabs } from '@/lib/searchParams'
 
@@ -55,7 +56,8 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
 
     case 'environment':
       return <VariablesForm service={service} />
-
+    case 'volumes':
+      return <VolumesForm service={service} />
     case 'deployments':
       return (
         <DeploymentList
@@ -69,7 +71,14 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
       return (
         <DomainList
           domains={domains}
-          ip={typeof server === 'object' ? server.ip : ''}
+          // TODO: Domain list should be able to handle both ssh and tailscale
+          ip={
+            typeof server === 'object'
+              ? server.preferConnectionType === 'ssh'
+                ? `${server.ip}`
+                : `${server.tailscale?.addresses?.at(0)}`
+              : ''
+          }
         />
       )
 

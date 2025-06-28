@@ -18,6 +18,8 @@ export const env = createEnv({
     RESEND_API_KEY: z.string().min(1).optional(),
     RESEND_SENDER_EMAIL: z.string().email().optional(),
     RESEND_SENDER_NAME: z.string().min(1).optional(),
+    TAILSCALE_OAUTH_CLIENT_SECRET: z.string().min(1).optional(),
+    TAILSCALE_TAILNET: z.string().min(1).optional(),
   },
   client: {
     NEXT_PUBLIC_WEBSITE_URL: z.string().url(),
@@ -25,6 +27,7 @@ export const env = createEnv({
     NEXT_PUBLIC_INTAKE_TELEMETRY_DISABLED: z.literal('1').optional(),
     NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN: z.string().min(1).optional(),
     NEXT_PUBLIC_BETTER_STACK_INGESTING_URL: z.string().min(1).optional(),
+    NEXT_PUBLIC_BETTER_STACK_LOG_LEVEL: z.string().min(1).optional(),
   },
   runtimeEnv: {
     NEXT_PUBLIC_WEBSITE_URL: changeBasedOnENV(
@@ -43,6 +46,10 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN,
     NEXT_PUBLIC_BETTER_STACK_INGESTING_URL:
       process.env.NEXT_PUBLIC_BETTER_STACK_INGESTING_URL,
+    NEXT_PUBLIC_BETTER_STACK_LOG_LEVEL:
+      process.env.NEXT_PUBLIC_BETTER_STACK_LOG_LEVEL,
+    TAILSCALE_OAUTH_CLIENT_SECRET: process.env.TAILSCALE_OAUTH_CLIENT_SECRET,
+    TAILSCALE_TAILNET: process.env.TAILSCALE_TAILNET,
   },
   emptyStringAsUndefined: true,
 })
