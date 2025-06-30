@@ -8,7 +8,6 @@ import {
   ArrowRight,
   CheckCircle,
   ChevronLeft,
-  Cloud,
   CreditCard,
   ExternalLink,
   Link,
@@ -215,6 +214,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
   const formatSpecs = (plan: VpsPlan) => {
     return `${plan.cpu.cores}C ${plan.cpu.type} • ${plan.ram.size}${plan.ram.unit} RAM • ${plan.storageOptions?.[0]?.size}${plan.storageOptions?.[0]?.unit} ${plan.storageOptions?.[0]?.type}`
   }
+
   const formatPrice = (plan: VpsPlan) => {
     const walletBalance = paymentData?.walletBalance || 0
     return formatDiscountedPrice(plan, walletBalance)
@@ -420,10 +420,11 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                         id={`${id}-${plan.slug}`}
                         className='order-1 after:absolute after:inset-0'
                       />
-                      <div className='flex grow items-center gap-4'>
+                      <div className='flex grow gap-4'>
                         <div className='flex h-10 w-10 items-center justify-center rounded-full bg-secondary'>
-                          <Cloud className='h-5 w-5' />
+                          <Server className='size-4' />
                         </div>
+
                         <div className='space-y-1'>
                           <div className='flex items-center gap-2'>
                             <Label
@@ -432,6 +433,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                               {plan.name}
                             </Label>
                           </div>
+
                           <p className='text-sm text-muted-foreground'>
                             {formatSpecs(plan)}
                           </p>
@@ -634,6 +636,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                   <Settings className='h-4 w-4' />
                 </Button>
               </div>
+
               {inTakeAccounts && inTakeAccounts.length > 0 && (
                 <Select
                   value={selectedINTakeAccount.id}
@@ -652,6 +655,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
               )}
             </div>
           </CardHeader>
+
           <CardContent className='p-6'>
             {renderINTakeAccountSection()}
           </CardContent>
@@ -728,6 +732,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
               />
             </CardTitle>
           </CardHeader>
+
           <CardContent className='p-6'>
             <RadioGroup
               className='grid grid-cols-1'
@@ -749,7 +754,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                 />
                 <div className='flex grow items-center gap-4'>
                   <div className='flex h-10 w-10 items-center justify-center rounded-full bg-secondary'>
-                    <Server className='h-5 w-5' />
+                    <Server className='size-4' />
                   </div>
                   <div>
                     <Label
