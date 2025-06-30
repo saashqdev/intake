@@ -85,6 +85,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
       }
     }
 
+<<<<<<< HEAD
     if (doc.connection?.status !== (sshConnected ? 'success' : 'failed')) {
       // Update connection status in database
       setImmediate(() => {
@@ -104,6 +105,25 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
           })
       })
     }
+=======
+    // Update connection status in database
+    setImmediate(() => {
+      payload
+        .update({
+          collection: 'servers',
+          id: doc.id,
+          data: {
+            connection: {
+              status: sshConnected ? 'success' : 'failed',
+              lastChecked: new Date().toString(),
+            },
+          },
+        })
+        .catch(error => {
+          console.log('Error updating server connection status:', error)
+        })
+    })
+>>>>>>> 7bb03aebf042f90ee92fd58b29540d9d493dcafd
 
     // Return enriched server document
     return {
@@ -119,7 +139,11 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
       railpack,
       connection: {
         status: sshConnected ? 'success' : 'failed',
+<<<<<<< HEAD
         // lastChecked: new Date().toString(),
+=======
+        lastChecked: new Date().toString(),
+>>>>>>> 7bb03aebf042f90ee92fd58b29540d9d493dcafd
       },
     }
   } catch (error) {

@@ -200,7 +200,11 @@ const ServerCard = ({
           </CardContent>
 
           {/* Footer Section */}
+<<<<<<< HEAD
           {/* {server.connection && (
+=======
+          {server.connection && (
+>>>>>>> 7bb03aebf042f90ee92fd58b29540d9d493dcafd
             <CardFooter className='pb-4 pt-0'>
               <div className='flex w-full items-center gap-2 text-xs text-muted-foreground'>
                 <Clock className='h-4 w-4' />
