@@ -443,6 +443,7 @@ export interface Server {
           | 'reset_password'
         )
       | null;
+    next_billing_date?: string | null;  
   };
   /**
    * Connection details for the server
