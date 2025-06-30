@@ -23,7 +23,10 @@ export const getServersDetails = protectedClient
         },
       },
       pagination: false,
-      context: { populateServerDetails: true },
+      context: {
+        populateServerDetails: true,
+        checkIntakeNextBillingDate: true,
+      },
     })
     return { servers }
   })
