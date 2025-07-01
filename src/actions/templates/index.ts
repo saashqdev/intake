@@ -2,13 +2,6 @@
 
 import axios from 'axios'
 import { revalidatePath } from 'next/cache'
-import {
-  Config,
-  adjectives,
-  animals,
-  colors,
-  uniqueNamesGenerator,
-} from 'unique-names-generator'
 
 import { INTAKE_CONFIG, TEMPLATE_EXPR } from '@/lib/constants'
 import { protectedClient, publicClient } from '@/lib/safe-action'
@@ -29,17 +22,6 @@ import {
   publicTemplateSchema,
   updateTemplateSchema,
 } from './validator'
-
-const handleGenerateName = (): string => {
-  const nameConfig: Config = {
-    dictionaries: [adjectives, animals, colors],
-    separator: '-',
-    length: 3,
-    style: 'lowerCase',
-  }
-
-  return uniqueNamesGenerator(nameConfig)
-}
 
 // This function specify the variable-type
 function classifyVariableType(value: string) {
@@ -430,7 +412,9 @@ export const getAllTemplatesAction = protectedClient
     const { userTenant, payload } = ctx
 
     if (type === 'official') {
-      const res = await fetch('https://intake.sh/api/templates')
+      const res = await fetch(
+        'https://intake.sh/api/templates?where[type][equals]=official',
+      )
 
       if (!res.ok) {
         throw new Error('Failed to fetch official templates')
@@ -440,17 +424,32 @@ export const getAllTemplatesAction = protectedClient
       return (data.docs ?? []) as Template[]
     }
 
-    const { docs } = await payload.find({
-      collection: 'templates',
-      where: {
-        'tenant.slug': {
-          equals: userTenant.tenant.slug,
-        },
-      },
-      pagination: false,
-    })
+    if (type === 'community') {
+      const res = await fetch(
+        'https://gointake.ca/api/templates?where[type][equals]=community',
+      )
 
-    return docs
+      if (!res.ok) {
+        throw new Error('Failed to fetch official templates')
+      }
+
+      const data = await res.json()
+      return (data.docs ?? []) as Template[]
+    }
+
+    if (type === 'personal') {
+      const { docs } = await payload.find({
+        collection: 'templates',
+        where: {
+          'tenant.slug': {
+            equals: userTenant.tenant.slug,
+          },
+        },
+        pagination: false,
+      })
+
+      return docs
+    }
   })
 
 export const deployTemplateFromArchitectureAction = protectedClient
@@ -668,7 +667,7 @@ export const getOfficialTemplateByIdAction = publicClient
   .action(async ({ clientInput }) => {
     const { templateId } = clientInput
 
-    const res = await fetch(`https://intake.sh/api/templates/${templateId}`)
+    const res = await fetch(`https://gointake.ca/api/templates/${templateId}`)
 
     if (!res.ok) {
       throw new Error('Failed to fetch template details')

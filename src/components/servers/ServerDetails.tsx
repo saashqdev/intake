@@ -11,7 +11,6 @@ import {
   Info,
   MemoryStick,
   Server,
-  Terminal,
   X,
 } from 'lucide-react'
 import Link from 'next/link'
@@ -308,8 +307,7 @@ const ServerDetails = ({
         )}
 
       {/* Server Information */}
-      <div className='flex items-center justify-between'>
-        <h4 className='text-lg font-semibold'>Server Information</h4>
+      <div className='flex items-center justify-end'>
         <div className='flex items-center space-x-2'>
           {isNetdataAvailable && (
             <Drawer>
@@ -346,7 +344,7 @@ const ServerDetails = ({
               </DrawerContent>
             </Drawer>
           )}
-          {server.connection?.status === 'success' && (
+          {/* {server.connection?.status === 'success' && (
             <TerminalButton
               variant='outline'
               size='sm'
@@ -355,7 +353,7 @@ const ServerDetails = ({
               <Terminal className='mr-1 h-3 w-3' />
               <span className='text-xs'>Open Terminal</span>
             </TerminalButton>
-          )}
+          )} */}
         </div>
       </div>
 
@@ -366,7 +364,7 @@ const ServerDetails = ({
           ))}
         </div>
       ) : (
-        <Alert variant='default' className='bg-muted/50'>
+        <Alert variant='default' className='mt-0 bg-muted/50'>
           <Info className='h-4 w-4' />
           <AlertTitle>No Server Information Available</AlertTitle>
           <AlertDescription>
