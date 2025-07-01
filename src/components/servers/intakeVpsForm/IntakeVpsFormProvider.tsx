@@ -275,7 +275,7 @@ export const IntakeVpsFormProvider = ({
         backup => backup.price.type === 'included',
       )
 
-      const displayName = handleGenerateName()
+      const displayName = handleGenerateName(3)
 
       setValue('displayName', displayName, { shouldValidate: true })
       setValue(
@@ -363,10 +363,12 @@ export const IntakeVpsFormProvider = ({
 
 export const useIntakeVpsForm = () => {
   const context = useContext(IntakeVpsFormContext)
+
   if (!context) {
     throw new Error(
       'useIntakeVpsForm must be used within a IntakeVpsFormProvider',
     )
   }
+
   return context
 }

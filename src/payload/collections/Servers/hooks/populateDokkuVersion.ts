@@ -38,6 +38,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
           version: undefined,
         },
         railpack: undefined,
+        publicIp: doc.publicIp ?? undefined,
         connection: {
           status: 'failed',
           lastChecked: new Date().toString(),
@@ -57,6 +58,12 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
     let railpack: string | undefined | null
 
     // Attempt SSH connection if possible
+    let shouldUpdateCloudInitStatus = false
+    let shouldUpdatePublicIp = false
+    let shouldUpdateTailscaleIp = false
+    let newPublicIp: string | undefined = undefined
+    let newTailscaleIp: string | undefined = undefined
+
     if (portIsOpen) {
       const ssh = await dynamicSSH(sshDetails)
 
@@ -72,11 +79,81 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
           linuxVersion = serverInfo.linuxDistributionVersion
           linuxType = serverInfo.linuxDistributionType
           railpack = serverInfo.railpackVersion
+
+          // If cloudInitStatus was running, check and update if needed
+          if (doc.cloudInitStatus === 'running') {
+            try {
+              const { stdout: cloudInitStatusOut } =
+                await ssh.execCommand('cloud-init status')
+
+              console.log('cloudInitStatusOut:', cloudInitStatusOut)
+
+              const statusMatch = cloudInitStatusOut.match(/status:\s*(\w+)/)
+              const status = statusMatch ? statusMatch[1] : ''
+
+              if (status !== 'running') {
+                shouldUpdateCloudInitStatus = true
+              }
+            } catch (cloudInitError) {
+              console.log('Error checking cloud-init status:', cloudInitError)
+            }
+          }
+
+          if (!doc.publicIp || !doc.tailscalePrivateIp) {
+            try {
+              // Get public IP from external service
+              const { stdout: publicIpOut } = await ssh.execCommand(
+                'curl -4 ifconfig.me',
+              )
+              const publicIp = publicIpOut.trim()
+
+              // Get all local IPs in JSON
+              const { stdout: ipAddrOut } = await ssh.execCommand('ip -j addr')
+              let ipJson: any[] = []
+              try {
+                ipJson = JSON.parse(ipAddrOut)
+              } catch (jsonErr) {
+                ipJson = []
+              }
+
+              // Extract Tailscale IP
+              const tailscaleIp = ipJson
+                .find((iface: any) => iface.ifname === 'tailscale0')
+                ?.addr_info?.find((addr: any) => addr.family === 'inet')?.local
+
+              console.log('tailscaleIp:', tailscaleIp)
+
+              if (tailscaleIp) {
+                newTailscaleIp = tailscaleIp
+                shouldUpdateTailscaleIp = true
+              }
+
+              const allIps: string[] = []
+              for (const iface of ipJson) {
+                if (iface.addr_info) {
+                  for (const addr of iface.addr_info) {
+                    if (addr.local) allIps.push(addr.local)
+                  }
+                }
+              }
+
+              if (publicIp && allIps.includes(publicIp)) {
+                newPublicIp = publicIp
+              } else {
+                newPublicIp = '999.999.999.999'
+              }
+
+              shouldUpdatePublicIp = true
+            } catch (publicIpErr) {
+              console.log('Error fetching public IP:', publicIpErr)
+            }
+          }
         }
 
         ssh.dispose()
       } catch (error) {
         console.log(`Connection error for ${doc.name}:`, error)
+
         try {
           ssh.dispose()
         } catch (disposeError) {
@@ -85,47 +162,53 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
       }
     }
 
-<<<<<<< HEAD
-    if (doc.connection?.status !== (sshConnected ? 'success' : 'failed')) {
-      // Update connection status in database
+    const newConnectionStatus = sshConnected ? 'success' : 'failed'
+    const connectionStatusChanged =
+      doc.connection?.status !== newConnectionStatus
+
+    if (
+      connectionStatusChanged ||
+      shouldUpdateCloudInitStatus ||
+      shouldUpdatePublicIp ||
+      shouldUpdateTailscaleIp
+    ) {
+      const updateData: Partial<Server> = {}
+
+      if (connectionStatusChanged) {
+        updateData.connection = {
+          status: newConnectionStatus,
+          lastChecked: new Date().toString(),
+        }
+      }
+
+      if (shouldUpdateCloudInitStatus) {
+        updateData.cloudInitStatus = 'other'
+      }
+
+      if (shouldUpdatePublicIp) {
+        updateData.publicIp = newPublicIp
+      }
+
+      if (shouldUpdateTailscaleIp) {
+        updateData.tailscalePrivateIp = newTailscaleIp
+      }
+
       setImmediate(() => {
         payload
           .update({
             collection: 'servers',
             id: doc.id,
-            data: {
-              connection: {
-                status: sshConnected ? 'success' : 'failed',
-                lastChecked: new Date().toString(),
-              },
-            },
+            data: updateData,
           })
           .catch(error => {
-            console.log('Error updating server connection status:', error)
+            console.log(
+              'Error updating server connection status and/or cloudInitStatus and/or publicIp:',
+              error,
+            )
           })
       })
     }
-=======
-    // Update connection status in database
-    setImmediate(() => {
-      payload
-        .update({
-          collection: 'servers',
-          id: doc.id,
-          data: {
-            connection: {
-              status: sshConnected ? 'success' : 'failed',
-              lastChecked: new Date().toString(),
-            },
-          },
-        })
-        .catch(error => {
-          console.log('Error updating server connection status:', error)
-        })
-    })
->>>>>>> 7bb03aebf042f90ee92fd58b29540d9d493dcafd
 
-    // Return enriched server document
     return {
       ...doc,
       version: dokku,
@@ -137,18 +220,16 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
         version: linuxVersion,
       },
       railpack,
+      publicIp: newPublicIp ?? doc.publicIp ?? undefined,
+      tailscalePrivateIp: newTailscaleIp ?? doc.tailscalePrivateIp,
       connection: {
         status: sshConnected ? 'success' : 'failed',
-<<<<<<< HEAD
-        // lastChecked: new Date().toString(),
-=======
         lastChecked: new Date().toString(),
->>>>>>> 7bb03aebf042f90ee92fd58b29540d9d493dcafd
       },
     }
   } catch (error) {
     console.error('populateDokkuVersion error:', error)
-    // Return document with failed connection status
+
     return {
       ...doc,
       version: undefined,
@@ -160,6 +241,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
         version: undefined,
       },
       railpack: undefined,
+      publicIp: doc.publicIp ?? undefined,
       connection: {
         status: 'failed',
         lastChecked: new Date().toString(),

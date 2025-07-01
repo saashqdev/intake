@@ -5,211 +5,410 @@ import { revalidatePath } from 'next/cache'
 
 import { INTAKE_CONFIG } from '@/lib/constants'
 import { protectedClient } from '@/lib/safe-action'
+import { CloudProviderAccount } from '@/payload-types'
 
+import { VpsPlan } from './types'
 import {
-  cloudProviderAccountsSchema,
-  syncIntakeServersSchema,
+  checkConnectionSchema,
+  checkPaymentMethodSchema,
+  connectINTakeAccountSchema,
+  createVPSOrderActionSchema,
+  deleteINTakeAccountSchema,
 } from './validator'
 
-export const getCloudProvidersAccountsAction = protectedClient
+export const connectINTakeAccountAction = protectedClient
   .metadata({
-    actionName: 'getCloudProvidersAccountsAction',
+    actionName: 'connectAWSAccountAction',
   })
-  .schema(cloudProviderAccountsSchema)
+  .schema(connectINTakeAccountSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { type } = clientInput
-    const { userTenant, payload } = ctx
+    const { accessToken, name, id } = clientInput
 
-    const { docs } = await payload.find({
+    const { userTenant, payload } = ctx
+    let response: CloudProviderAccount
+
+    if (id) {
+      response = await payload.update({
+        collection: 'cloudProviderAccounts',
+        id,
+        data: {
+          type: 'inTake',
+          inTakeDetails: {
+            accessToken,
+          },
+          name,
+        },
+      })
+    } else {
+      response = await payload.create({
+        collection: 'cloudProviderAccounts',
+        data: {
+          type: 'inTake',
+          inTakeDetails: {
+            accessToken,
+          },
+          tenant: userTenant.tenant,
+          name,
+        },
+      })
+    }
+
+    revalidatePath(`${userTenant.tenant.slug}/servers/add-new-server`)
+    console.log(response)
+    return response
+  })
+
+export const getINTakePlansAction = protectedClient
+  .metadata({
+    actionName: 'getINTakePlansAction',
+  })
+  .action(async () => {
+    let vpsPlans: VpsPlan[] = []
+
+    if (INTAKE_CONFIG.URL) {
+      const response = await axios.get(`${INTAKE_CONFIG.URL}/api/vpsPlans`, {})
+
+      vpsPlans = response?.data?.docs ?? []
+    }
+
+    return vpsPlans
+  })
+
+export const createVPSOrderAction = protectedClient
+  .metadata({
+    actionName: 'createVPSOrderAction',
+  })
+  .schema(createVPSOrderActionSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { accountId, sshKeyIds = [], vps } = clientInput
+    const { userTenant, payload } = ctx
+    const { addCreateVpsQueue } = await import(
+      '@/queues/inTake/addCreateVpsQueue'
+    )
+
+    console.log('Starting VPS creation process...')
+
+    // 1. Verify inTake account
+    const { docs: inTakeAccounts } = await payload.find({
       collection: 'cloudProviderAccounts',
       pagination: false,
       where: {
         and: [
-          {
-            type: {
-              equals: type,
-            },
-          },
-          {
-            'tenant.slug': {
-              equals: userTenant.tenant?.slug,
-            },
-          },
+          { id: { equals: accountId } },
+          { type: { equals: 'inTake' } },
+          { 'tenant.slug': { equals: userTenant.tenant?.slug } },
         ],
       },
     })
 
-    return docs
-  })
+    console.dir({ inTakeAccounts }, { depth: Infinity })
 
-export const syncIntakeServersAction = protectedClient
-  .metadata({
-    actionName: 'syncIntakeServersAction',
-  })
-  .schema(syncIntakeServersSchema)
-  .action(async ({ clientInput, ctx }) => {
-    const { id } = clientInput
-    const { userTenant, payload } = ctx
-
-    if (!INTAKE_CONFIG.URL || !INTAKE_CONFIG.AUTH_SLUG) {
-      throw new Error('Environment variables configuration missing.')
+    if (!inTakeAccounts?.length) {
+      throw new Error('No inTake account found with the specified ID')
     }
 
-    const account = await payload.findByID({
-      collection: 'cloudProviderAccounts',
-      id,
+    const inTakeAccount = inTakeAccounts[0]
+    const token = inTakeAccount.inTakeDetails?.accessToken
+
+    if (!token) {
+      throw new Error('Invalid inTake account: No access token found')
+    }
+
+    // 2. Check payment method and balance
+    console.log('Checking payment method...')
+    const paymentCheck = await checkPaymentMethodAction({ token })
+
+    if (!paymentCheck?.data) {
+      throw new Error('Failed to verify payment methods')
+    }
+
+    const { walletBalance, validCardCount } = paymentCheck.data
+    const hasSufficientFunds = walletBalance >= vps.estimatedCost
+    const hasPaymentMethod = validCardCount > 0 || hasSufficientFunds
+
+    if (!hasPaymentMethod) {
+      throw new Error(
+        `Insufficient funds ($${walletBalance.toFixed(2)}) and no valid payment cards. ` +
+          `Required: $${vps.estimatedCost.toFixed(2)}`,
+      )
+    }
+
+    const { docs: sshKeys } = await payload.find({
+      collection: 'sshKeys',
+      pagination: false,
+      where: {
+        and: [
+          { id: { in: sshKeyIds } },
+          { 'tenant.slug': { equals: userTenant.tenant?.slug } },
+        ],
+      },
     })
 
-    if (account.type === 'inTake') {
-      const key = account?.inTakeDetails?.accessToken!
+    // 3. Proceed with VPS creation
+    console.log('Payment verified. Triggering VPS creation queue...')
 
-      // 1. Fetching all servers
-      const ordersResponse = await axios.get(
-        `${INTAKE_CONFIG.URL}/api/vpsOrders`,
-        {
-          headers: {
-            Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${key}`,
-          },
+    const createVPSresponse = await addCreateVpsQueue({
+      sshKeys,
+      vps,
+      accountDetails: {
+        id: inTakeAccount.id,
+        accessToken: token,
+      },
+      tenant: userTenant.tenant,
+    })
+
+    if (createVPSresponse.id) {
+      console.log('VPS creation process initiated successfully')
+
+      return {
+        success: true,
+        data: {
+          accountId: inTakeAccount.id,
+          vpsName: vps.displayName,
+          estimatedCost: vps.estimatedCost,
         },
-      )
-
-      console.dir({ ordersResponse: ordersResponse?.data }, { depth: null })
-
-      // 2. Filtering orders to get only those with an IP address
-      const orders = ordersResponse?.data?.docs || []
-
-      const filteredOrders = orders.filter(
-        (order: any) => order.instanceResponse?.ipConfig?.v4?.ip,
-      )
-
-      console.dir({ filteredOrders }, { depth: null })
-
-      // 3. finding existing servers in the database with the same IP
-      const { docs: existingServers } = await payload.find({
-        collection: 'servers',
-        where: {
-          ip: {
-            in: filteredOrders.map(
-              (order: any) => order.instanceResponse.ipConfig.v4.ip,
-            ),
-          },
-          'tenant.slug': {
-            equals: userTenant.tenant?.slug,
-          },
-        },
-      })
-
-      console.dir({ existingServers }, { depth: null })
-
-      // 4. filter the orders to only include those that are not already in the database
-      const newOrders = filteredOrders.filter((order: any) => {
-        return !existingServers.some(
-          server => server.ip === order.instanceResponse.ipConfig.v4.ip,
-        )
-      })
-
-      console.dir({ newOrders }, { depth: null })
-
-      if (newOrders.length === 0) {
-        return { success: true, message: 'No new servers to sync.' }
-      }
-
-      // 5. fetch all secrets to attach to the servers
-      const secretsResponse = await axios.get(
-        `${INTAKE_CONFIG.URL}/api/secrets`,
-        {
-          headers: {
-            Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${key}`,
-          },
-        },
-      )
-
-      console.dir({ secretsResponse: secretsResponse?.data }, { depth: null })
-
-      const secrets = secretsResponse?.data?.docs || []
-
-      // 5. Create new sshKey's, server's in the database for the new orders
-      for await (const order of newOrders) {
-        // Find the secret for the server
-        const filteredSecrets = secrets.find((s: any) => {
-          const instanceSecretKeyList = order.instanceResponse.sshKeys || []
-
-          return (
-            instanceSecretKeyList.includes(s?.details?.secretId) &&
-            s?.type === 'ssh'
-          )
-        })
-
-        console.dir({ filteredSecrets }, { depth: null })
-
-        const sshKey = filteredSecrets
-
-        if (!sshKey) {
-          // If no SSH key is found, skip creating the server
-          continue
-        }
-
-        // Check if the SSH key already exists in the database
-        const { docs: existingSSHKeyList } = await payload.find({
-          collection: 'sshKeys',
-          where: {
-            'tenant.slug': {
-              equals: userTenant.tenant?.slug,
-            },
-          },
-          pagination: false,
-        })
-
-        const existingSSHKeyResponse = existingSSHKeyList.filter(key => {
-          const tenantID =
-            key.tenant && typeof key.tenant === 'object'
-              ? key.tenant.id
-              : key.tenant
-          return (
-            key.publicKey === sshKey?.publicKey &&
-            tenantID === userTenant.tenant?.id
-          )
-        })
-
-        let sshKeyID = ''
-
-        console.dir({ existingSSHKeyResponse }, { depth: null })
-
-        if (existingSSHKeyResponse?.[0]?.id) {
-          sshKeyID = existingSSHKeyResponse[0].id
-        }
-        // if the SSH key does not exist, create a new one
-        else {
-          const sshKeyResponse = await payload.create({
-            collection: 'sshKeys',
-            data: {
-              name: sshKey?.name,
-              publicKey: sshKey?.publicKey,
-              privateKey: sshKey?.privateKey,
-              tenant: userTenant.tenant?.id,
-            },
-          })
-
-          sshKeyID = sshKeyResponse.id
-        }
-
-        await payload.create({
-          collection: 'servers',
-          data: {
-            name: `${order.instanceResponse.displayName}`,
-            ip: `${order.instanceResponse.ipConfig.v4.ip}`,
-            tenant: userTenant.tenant?.id,
-            preferConnectionType: 'tailscale',
-            cloudProviderAccount: id,
-            port: 22, // Default port for SSH
-            provider: 'intake',
-            username: `${order.instanceResponse.defaultUser}`,
-            sshKey: sshKeyID,
-          },
-        })
+        message:
+          'VPS creation process started. You will receive updates on the progress.',
       }
     }
+  })
 
-    revalidatePath(`${userTenant.tenant.slug}/servers`)
-    return { success: true, message: 'Servers synced successfully.' }
+export const checkPaymentMethodAction = protectedClient
+  .metadata({
+    actionName: 'checkPaymentMethodAction',
+  })
+  .schema(checkPaymentMethodSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { token } = clientInput
+    const { userTenant, payload, user } = ctx
+
+    if (!token) {
+      throw new Error('Invalid inTake account: No access token found')
+    }
+
+    // Fetch user wallet balance
+    const userResponse = await axios.get(`${INTAKE_CONFIG.URL}/api/users`, {
+      headers: {
+        Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${token}`,
+      },
+    })
+
+    const usersData = userResponse.data
+    const userData = usersData.docs.at(0) || {}
+    const walletBalance = userData.wallet || 0
+
+    // Fetch user's payment cards
+    const cardsResponse = await axios.get(
+      `${INTAKE_CONFIG.URL}/api/cards/count`,
+      {
+        headers: {
+          Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${token}`,
+        },
+      },
+    )
+
+    const cardsData = cardsResponse.data
+    const validCardCount = cardsData.totalDocs || 0
+
+    return {
+      walletBalance,
+      validCardCount,
+    }
+  })
+
+export const checkAccountConnection = protectedClient
+  .metadata({
+    actionName: 'checkAccountConnection',
+  })
+  .schema(checkConnectionSchema)
+  .action(async ({ clientInput }) => {
+    const { token } = clientInput
+
+    try {
+      // Validate token format
+      if (!token || typeof token !== 'string' || token.trim() === '') {
+        return {
+          isConnected: false,
+          user: null,
+          error: 'Invalid or missing access token',
+        }
+      }
+
+      const userResponse = await axios.get(`${INTAKE_CONFIG.URL}/api/users`, {
+        headers: {
+          Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${token}`,
+        },
+        timeout: 10000, // 10 second timeout
+      })
+
+      const usersData = userResponse?.data?.docs?.at(0)
+
+      if (!usersData || !usersData.id) {
+        return {
+          isConnected: false,
+          user: null,
+          error: 'No user data found or invalid response from inTake API',
+        }
+      }
+
+      // Additional validation for active user
+      if (usersData.status && usersData.status !== 'active') {
+        return {
+          isConnected: false,
+          user: usersData,
+          error: `Account status is ${usersData.status}. Please ensure your inTake account is active.`,
+        }
+      }
+
+      return {
+        isConnected: true,
+        user: usersData,
+        error: null,
+      }
+    } catch (error) {
+      console.error('inTake account connection check failed:', error)
+
+      // Handle specific error types
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          // Server responded with error status
+          const status = error.response.status
+          const statusText = error.response.statusText
+
+          switch (status) {
+            case 401:
+              return {
+                isConnected: false,
+                user: null,
+                error:
+                  'Invalid access token. Please check your inTake API key.',
+              }
+            case 403:
+              return {
+                isConnected: false,
+                user: null,
+                error:
+                  'Access denied. Please ensure your API key has the necessary permissions.',
+              }
+            case 404:
+              return {
+                isConnected: false,
+                user: null,
+                error: 'inTake API endpoint not found. Please try again later.',
+              }
+            case 429:
+              return {
+                isConnected: false,
+                user: null,
+                error: 'Too many requests. Please wait a moment and try again.',
+              }
+            case 500:
+            case 502:
+            case 503:
+            case 504:
+              return {
+                isConnected: false,
+                user: null,
+                error:
+                  'inTake service is temporarily unavailable. Please try again later.',
+              }
+            default:
+              return {
+                isConnected: false,
+                user: null,
+                error: `Connection failed with status ${status}: ${statusText}`,
+              }
+          }
+        } else if (error.request) {
+          // Network error
+          return {
+            isConnected: false,
+            user: null,
+            error:
+              'Network error. Please check your internet connection and try again.',
+          }
+        } else if (error.code === 'ECONNABORTED') {
+          // Timeout error
+          return {
+            isConnected: false,
+            user: null,
+            error:
+              'Connection timeout. The inTake service may be slow or unavailable.',
+          }
+        }
+      }
+
+      // Generic error fallback
+      return {
+        isConnected: false,
+        user: null,
+        error:
+          'Failed to connect to inTake. Please check your account details and try again.',
+      }
+    }
+  })
+
+export const deleteINTakeAccountAction = protectedClient
+  .metadata({
+    actionName: 'deleteINTakeAccountSchema',
+  })
+  .schema(deleteINTakeAccountSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { id } = clientInput
+    const { payload } = ctx
+
+    const response = await payload.update({
+      collection: 'cloudProviderAccounts',
+      id,
+      data: {
+        deletedAt: new Date().toISOString(),
+      },
+    })
+
+    return response
+  })
+
+export const getIntakeUser = protectedClient
+  .metadata({
+    actionName: 'getIntakeUser',
+  })
+  .action(async ({ ctx }) => {
+    const { payload, userTenant } = ctx
+
+    const { docs: intakeAccounts } = await payload.find({
+      collection: 'cloudProviderAccounts',
+      pagination: false,
+      where: {
+        and: [
+          { type: { equals: 'inTake' } },
+          { 'tenant.slug': { equals: userTenant.tenant?.slug } },
+        ],
+      },
+    })
+
+    if (!intakeAccounts || intakeAccounts.length === 0) {
+      throw new Error('No connected inTake accounts found')
+    }
+
+    const intakeAccount = intakeAccounts?.[0]
+    const token = intakeAccount.inTakeDetails?.accessToken
+
+    let user = null
+
+    try {
+      const response = await axios.get(`${INTAKE_CONFIG.URL}/api/users`, {
+        headers: {
+          Authorization: `${INTAKE_CONFIG.AUTH_SLUG} API-Key ${token}`,
+        },
+        timeout: 10000,
+      })
+
+      user = response?.data?.docs?.[0]
+    } catch (error) {
+      console.log(
+        `Failed to fetch user details with account: ${intakeAccount.id}`,
+      )
+    }
+
+    return { user, account: intakeAccount }
   })

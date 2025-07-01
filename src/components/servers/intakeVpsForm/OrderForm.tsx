@@ -19,11 +19,9 @@ import { Form } from '@/components/ui/form'
 import { useIntakeVpsForm } from './IntakeVpsFormProvider'
 import { BackupOptionsSection } from './form-fields/BackupOptionsSection'
 import { DisplayNameField } from './form-fields/DisplayNameField'
-import { ImageSelection } from './form-fields/ImageSelection'
 import { ImageVersionField } from './form-fields/ImageVersionField'
 import { PriceSummarySection } from './form-fields/PriceSummarySection'
 import { RegionField } from './form-fields/RegionField'
-import { SshKeySection } from './form-fields/SshKeySection'
 import { StorageTypeField } from './form-fields/StorageTypeField'
 import { TermLengthSection } from './form-fields/TermLengthSection'
 import type { VpsFormData } from './schemas'
@@ -114,10 +112,10 @@ export const OrderForm = ({ inTakeUser }: { inTakeUser: any }) => {
           <TermLengthSection />
           <RegionField />
           <StorageTypeField />
-          <ImageSelection />
+          {/* <ImageSelection /> */}
           <ImageVersionField />
           {/* <LoginDetailsSection /> */}
-          <SshKeySection />
+          {/* <SshKeySection /> */}
           <BackupOptionsSection />
           <PriceSummarySection />
 
@@ -158,7 +156,7 @@ export const OrderForm = ({ inTakeUser }: { inTakeUser: any }) => {
         </form>
       </Form>
 
-      <Dialog open={triggeredVPSOrderCreation}>
+      <Dialog open={isCreatingVpsOrder || triggeredVPSOrderCreation}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Processing Your Order</DialogTitle>

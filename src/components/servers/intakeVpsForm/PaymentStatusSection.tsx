@@ -110,15 +110,13 @@ export const PaymentStatusSection = () => {
                   </div>
                 </div>
               </div>
+
               <Button
                 variant='outline'
                 size='sm'
                 className='w-full gap-2 sm:w-fit'
                 onClick={() =>
-                  window.open(
-                    'https://demo.gointake.ca/profile/cards',
-                    '_blank',
-                  )
+                  window.open('https://intake.sh/profile/cards', '_blank')
                 }>
                 Open inTake
                 <ExternalLink className='h-4 w-4' />
