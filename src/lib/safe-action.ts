@@ -1,5 +1,4 @@
 import configPromise from '@payload-config'
-import { env } from 'env'
 import { createSafeActionClient } from 'next-safe-action'
 import { headers } from 'next/headers'
 import { forbidden } from 'next/navigation'
@@ -16,10 +15,6 @@ type UserTenant = {
   roles: ('tenant-admin' | 'tenant-user')[]
 }
 
-const loggingEnabled =
-  env.NEXT_PUBLIC_BETTER_STACK_INGESTING_URL &&
-  env.NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN
-
 export const publicClient = createSafeActionClient({
   defineMetadataSchema() {
     return z.object({
@@ -30,17 +25,19 @@ export const publicClient = createSafeActionClient({
   async handleServerError(error, utils) {
     const headersList = await headers()
     // Log to console.
-    console.error(`Action error: ${utils.metadata.actionName}`, error.message)
+    // console.error(`Action error: ${utils.metadata.actionName}`, error.message)
     const { clientInput, metadata, ctx } = utils
 
-    if (loggingEnabled) {
-      log.error(error.message, {
+    log.error(
+      error.message,
+      {
         actionName: metadata?.actionName,
         clientInput,
         stack: error.stack,
         errorType: error.constructor.name,
-      })
-    }
+      },
+      { hideInConsole: false },
+    )
 
     // Returning the error message instead of throwing it
     return error.message
@@ -61,17 +58,16 @@ export const protectedClient = publicClient.use(
       throw Error('Unauthenticated')
     }
 
-    if (loggingEnabled) {
-      log.info(
-        `Running protected action: ${metadata?.actionName} by ${user?.username}`,
-        {
-          actionName: metadata?.actionName,
-          userId: user?.id,
-          userEmail: user?.email,
-          userName: user?.username,
-        },
-      )
-    }
+    log.info(
+      `Running protected action: ${metadata?.actionName} by ${user?.username}`,
+      {
+        actionName: metadata?.actionName,
+        userId: user?.id,
+        userEmail: user?.email,
+        userName: user?.username,
+      },
+      { hideInConsole: false },
+    )
 
     // 2. checking for tenant slug
     const tenantSlug = await getTenant()
@@ -123,18 +119,17 @@ export const userClient = publicClient.use(async ({ next, ctx, metadata }) => {
   // 1. checking for user
   const { user } = await payload.auth({ headers: headersList })
 
-  if (loggingEnabled) {
-    log.info(
-      `Running public action: ${metadata?.actionName} by ${user?.username}`,
-      {
-        actionName: metadata?.actionName,
-        userId: user?.id,
-        userEmail: user?.email,
-        userName: user?.username,
-        headers: Object.fromEntries(headersList.entries()),
-      },
-    )
-  }
+  log.info(
+    `Running public action: ${metadata?.actionName} by ${user?.username}`,
+    {
+      actionName: metadata?.actionName,
+      userId: user?.id,
+      userEmail: user?.email,
+      userName: user?.username,
+      headers: Object.fromEntries(headersList.entries()),
+    },
+    { hideInConsole: false },
+  )
 
   if (!user) {
     throw Error('Unauthenticated')

@@ -298,7 +298,8 @@ const ServerDetails = ({
               <Link
                 className='underline'
                 href='https://dokku.com/docs/getting-started/installation/#system-requirements'
-                target='_blank'>
+                target='_blank'
+                rel='noopener noreferrer'>
                 docs
               </Link>{' '}
               for more details.
@@ -307,7 +308,8 @@ const ServerDetails = ({
         )}
 
       {/* Server Information */}
-      <div className='flex items-center justify-end'>
+      <div className='flex items-center justify-between'>
+        <h4 className='text-lg font-semibold'>Server Details</h4>
         <div className='flex items-center space-x-2'>
           {isNetdataAvailable && (
             <Drawer>
@@ -364,7 +366,9 @@ const ServerDetails = ({
           ))}
         </div>
       ) : (
-        <Alert variant='default' className='mt-0 bg-muted/50'>
+        <Alert
+          variant='default'
+          className='mt-0 bg-muted/50 text-muted-foreground'>
           <Info className='h-4 w-4' />
           <AlertTitle>No Server Information Available</AlertTitle>
           <AlertDescription>

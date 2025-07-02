@@ -127,8 +127,8 @@ export const OrderForm = ({ inTakeUser }: { inTakeUser: any }) => {
                 attach Discord account & accept our Terms of Service{' '}
                 <a
                   className='inline-block text-foreground underline'
-                  href='https://intake.sh/dashboard?onboarding=true'
-                  rel='no-referrer no-opener'
+                  href='https://gointake.ca/dashboard?onboarding=true'
+                  rel='noopener noreferrer'
                   target='_blank'>
                   link
                 </a>

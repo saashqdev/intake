@@ -22,6 +22,7 @@ const SuspendedAddNewServerPage = async () => {
         }
         vpsPlans={vpsPlans?.data ?? []}
         inTakeUser={inTakeDetails?.data?.user}
+        formType='create'
       />
 
       {/* <IntakeCloudDrawer /> Dave commented */}
