@@ -3,13 +3,17 @@
 import { protectedClient } from '@/lib/safe-action'
 import { ServerType } from '@/payload-types-overrides'
 
-import { getServerDetailsSchema } from './validator'
+import { getServerDetailsSchema, getServersDetailsSchema } from './validator'
 
 export const getServersDetails = protectedClient
   .metadata({
     actionName: 'getServersDetails',
   })
-  .action(async ({ ctx }) => {
+  .schema(getServersDetailsSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { populateServerDetails = false, refreshServerDetails = false } =
+      clientInput || {}
+
     const {
       payload,
       userTenant: { tenant },
@@ -24,7 +28,8 @@ export const getServersDetails = protectedClient
       },
       pagination: false,
       context: {
-        populateServerDetails: true,
+        populateServerDetails,
+        refreshServerDetails,
         checkIntakeNextBillingDate: true,
       },
     })
@@ -71,7 +76,8 @@ export const getServerBreadcrumbs = protectedClient
   })
   .schema(getServerDetailsSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { id } = clientInput
+    const { id, populateServerDetails, refreshServerDetails } = clientInput
+
     const {
       payload,
       userTenant: { tenant },
@@ -101,7 +107,10 @@ export const getServerBreadcrumbs = protectedClient
             },
           ],
         },
-        context: { populateServerDetails: true },
+        context: {
+          populateServerDetails,
+          refreshServerDetails,
+        },
       }),
     ])
 
