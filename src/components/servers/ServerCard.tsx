@@ -5,12 +5,15 @@ import { Button } from '../ui/button'
 import { format } from 'date-fns'
 import {
   AlertCircle,
+  AlertTriangle,
   Calendar,
   Cloud,
   Ellipsis,
+  Globe,
   HardDrive,
   Server as ServerIcon,
   Settings,
+  Shield,
   Trash2,
   WifiOff,
 } from 'lucide-react'
@@ -146,7 +149,68 @@ const ServerCard = ({
     }
   }
 
+  const getIpDetails = (server: Server) => {
+    // For SSH connections, prioritize the IP field
+    if (server.preferConnectionType === 'ssh') {
+      return {
+        label: 'IP Address',
+        value: server.ip || 'No IP available',
+        hasValue: !!server.ip,
+        icon: ServerIcon,
+        bgColor: 'bg-muted',
+        textColor: 'text-foreground',
+        borderColor: '',
+      }
+    }
+
+    // For tailscale connection, follow priority: publicIp > tailscalePrivateIp
+    if (server.publicIp && server.publicIp !== '999.999.999.999') {
+      return {
+        label: 'Public IP',
+        value: server.publicIp,
+        hasValue: true,
+        icon: Globe,
+        bgColor: 'bg-muted',
+        textColor: 'text-foreground',
+        borderColor: '',
+      }
+    }
+
+    if (server.tailscalePrivateIp) {
+      return {
+        label: 'Tailscale IP',
+        value: server.tailscalePrivateIp,
+        hasValue: true,
+        icon: Shield,
+        bgColor: 'bg-secondary',
+        textColor: 'text-secondary-foreground',
+        borderColor: 'border-secondary',
+      }
+    }
+
+    return {
+      label: 'IP Address',
+      value: 'No IP available',
+      hasValue: false,
+      icon: ServerIcon,
+      bgColor: 'bg-muted/50',
+      textColor: 'text-muted-foreground',
+      borderColor: '',
+    }
+  }
+
+  const shouldShowNoPublicIpBadge = (server: Server) => {
+    // Show badge if using Tailscale IP (no public IP available)
+    return (
+      server.preferConnectionType !== 'ssh' &&
+      (!server.publicIp || server.publicIp === '999.999.999.999') &&
+      server.tailscalePrivateIp
+    )
+  }
+
   const serverStatus = getServerStatus()
+  const ipInfo = getIpDetails(server)
+  const showNoPublicIpBadge = shouldShowNoPublicIpBadge(server)
 
   return (
     <>
@@ -190,7 +254,29 @@ const ServerCard = ({
             </div>
 
             {/* Combined Status Badge with Tooltip */}
-            <div className='flex justify-start'>
+            <div className='flex justify-start gap-2'>
+              {/* No Public IP Badge */}
+              {showNoPublicIpBadge && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge
+                        variant='secondary'
+                        className='cursor-help text-xs'>
+                        <AlertTriangle className='mr-1.5 h-3 w-3' />
+                        No Public IP
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>
+                        Server is only accessible via Tailscale private network
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+
+              {/* Server Status Badge */}
               {serverStatus.badge.tooltip ? (
                 <TooltipProvider>
                   <Tooltip>
@@ -223,19 +309,23 @@ const ServerCard = ({
           </CardHeader>
 
           {/* Content Section */}
-          <CardContent className='space-y-4 py-4 pt-0'>
+          <CardContent className='space-y-4 py-4'>
             {/* Server Details Grid */}
             <div className='grid grid-cols-1 gap-3'>
               {/* IP Address */}
               <div className='flex items-center justify-between'>
                 <div className='flex items-center gap-2 text-sm text-muted-foreground'>
-                  <ServerIcon className='h-4 w-4' />
-                  <span>IP Address</span>
+                  <ipInfo.icon className='h-4 w-4' />
+                  <span>{ipInfo.label}</span>
                 </div>
-                <span className='rounded bg-muted px-2 py-1 text-right font-mono text-sm'>
-                  {server.preferConnectionType === 'ssh'
-                    ? server.ip
-                    : server.publicIp}
+                <span
+                  className={cn(
+                    'rounded border px-2 py-1 text-right font-mono text-sm',
+                    ipInfo.bgColor,
+                    ipInfo.textColor,
+                    ipInfo.borderColor,
+                  )}>
+                  {ipInfo.value}
                 </span>
               </div>
 

@@ -94,7 +94,9 @@ export const OrderForm = ({ inTakeUser }: { inTakeUser: any }) => {
   }
 
   const onboardingCompleted =
-    !!inTakeUser?.discord?.accountId && !!inTakeUser?.acceptedTermsDate
+    !!inTakeUser?.discord?.accountId &&
+    !!inTakeUser?.acceptedTermsDate &&
+    !!inTakeUser?.discord?.isEligible
 
   return (
     <>
