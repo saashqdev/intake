@@ -41,6 +41,7 @@
     "httponly",
     "icmpv",
     "immer",
+    "importmap",
     "inTake",
     "keygen",
     "letsencrypt",
