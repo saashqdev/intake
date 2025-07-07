@@ -460,7 +460,7 @@ export interface Server {
     lastChecked?: string | null;
   };
   /**
-   * Number of times connection to the server has been attempted (DFlow only).
+   * Number of times connection to the server has been attempted (INTake only).
    */
   connectionAttempts?: number | null;
   deletedAt?: string | null;

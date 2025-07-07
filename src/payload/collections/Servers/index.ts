@@ -625,7 +625,7 @@ export const Servers: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description:
-          'Number of times connection to the server has been attempted (DFlow only).',
+          'Number of times connection to the server has been attempted (INTake only).',
         condition: data => data.provider === 'intake',
       },
       hooks: {
