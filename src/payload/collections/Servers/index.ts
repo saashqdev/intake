@@ -46,11 +46,6 @@ export const Servers: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'name',
-    components: {
-      edit: {
-        beforeDocumentControls: ['@/components/ServerHostConnectionCheck.tsx'],
-      },
-    },
   },
   access: {
     read: isAdmin,
@@ -60,7 +55,11 @@ export const Servers: CollectionConfig = {
     readVersions: isAdmin,
   },
   hooks: {
-    afterRead: [populateServerDetails, nextBillingDateAfterRead],
+    afterRead: [
+      populateServerDetails,
+      nextBillingDateAfterRead,
+      // populateIntakeVpsDetails,
+    ],
   },
   fields: [
     {
@@ -527,9 +526,9 @@ export const Servers: CollectionConfig = {
       },
       fields: [
         {
-          name: 'id',
+          name: 'orderId',
           type: 'text',
-          label: 'Id',
+          label: 'Order ID',
         },
         {
           name: 'instanceId',
@@ -617,6 +616,27 @@ export const Servers: CollectionConfig = {
           },
         },
       ],
+    },
+    {
+      name: 'connectionAttempts',
+      type: 'number',
+      label: 'Connection Attempts',
+      defaultValue: 0,
+      admin: {
+        position: 'sidebar',
+        description:
+          'Number of times connection to the server has been attempted (DFlow only).',
+        condition: data => data.provider === 'intake',
+      },
+      hooks: {
+        beforeValidate: [
+          args => {
+            const { value, data } = args || {}
+
+            return data?.provider === 'intake' ? (value ?? 0) : undefined
+          },
+        ],
+      },
     },
   ],
 }

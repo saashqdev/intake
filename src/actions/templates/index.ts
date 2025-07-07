@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache'
 import { INTAKE_CONFIG, TEMPLATE_EXPR } from '@/lib/constants'
 import { protectedClient, publicClient } from '@/lib/safe-action'
 import { generateRandomString } from '@/lib/utils'
-import { Project, Service, Template } from '@/payload-types'
+import { Project, Server, Service, Template } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 import { addTemplateDeployQueue } from '@/queues/template/deploy'
 
@@ -244,7 +244,7 @@ export const getOfficialTemplateByIdAction = publicClient
   .action(async ({ clientInput }) => {
     const { templateId } = clientInput
 
-    const res = await fetch(`https://gointake.ca/api/templates/${templateId}`)
+    const res = await fetch(`https://inTake.sh/api/templates/${templateId}`)
 
     if (!res.ok) {
       throw new Error('Failed to fetch template details')
@@ -545,6 +545,7 @@ export const templateDeployAction = protectedClient
 
       const { docs: duplicateProjects } = await payload.find({
         collection: 'projects',
+        pagination: false,
         where: {
           and: [
             {
@@ -576,6 +577,7 @@ export const templateDeployAction = protectedClient
           server: projectData?.serverId!,
           tenant,
         },
+        depth: 10,
       })
 
       projectDetails = response
@@ -583,6 +585,11 @@ export const templateDeployAction = protectedClient
       const project = await payload.findByID({
         collection: 'projects',
         id: projectId!,
+        joins: {
+          services: {
+            limit: 1000,
+          },
+        },
       })
       projectDetails = project
     }
@@ -719,7 +726,7 @@ export const templateDeployAction = protectedClient
             project: projectDetails?.id,
             tenant,
           },
-          depth: 10,
+          depth: 3,
         })
 
         createdServices.push(serviceResponse)
@@ -735,7 +742,7 @@ export const templateDeployAction = protectedClient
             volumes: service?.volumes,
             tenant,
           },
-          depth: 10,
+          depth: 3,
         })
 
         createdServices.push(serviceResponse)
@@ -756,7 +763,7 @@ export const templateDeployAction = protectedClient
               volumes: service?.volumes,
               tenant,
             },
-            depth: 10,
+            depth: 3,
           })
 
           createdServices.push(serviceResponse)
@@ -764,15 +771,17 @@ export const templateDeployAction = protectedClient
       }
     }
 
+    const lightweightServices = createdServices.map(
+      ({ project, ...rest }) => rest,
+    )
+
     // Step 3: trigger template-deploy queue with services
     const response = await addTemplateDeployQueue({
-      services: createdServices,
+      services: lightweightServices,
       serverDetails: {
-        id:
-          typeof projectDetails?.server === 'object'
-            ? projectDetails?.server?.id
-            : projectDetails?.server,
+        id: (projectDetails.server as Server).id,
       },
+      project: projectDetails,
       tenantDetails: {
         slug: tenant.slug,
       },
