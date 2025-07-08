@@ -56,14 +56,15 @@ This tab provides a detailed overview of your service configuration.
   change it based on your framework’s requirements.
 
 - #### Builder (✅ Editable)
-  Choose how your app is built. You can use the default **Railpack** builder for
-  zero-config setup, or select **Dockerfile** to provide custom build steps
+  Choose how your app is built. You can use the default **Buildpacks** builder
+  for zero-config setup, or select **Dockerfile** to provide custom build steps
   using your own Dockerfile.
 
 ### Builder Options
 
-- **Railpack (Default)**: Uses a zero-config, optimized builder setup
+- **Buildpacks (Default)**: Uses a zero-config, optimized builder setup
 - **Dockerfile**: Custom build using a `Dockerfile` in your repository
+- **Railpack**: Alternative zero-config builder option
 
 > ⚠️ Changes to editable fields will trigger a redeployment.
 
@@ -146,7 +147,7 @@ Located at the top-right of your service view:
 
 ## ✅ Summary
 
-App Services in inTake offer powerful integration with your development workflow.
-From connecting a repo on GitHub, GitLab, or Bitbucket to deploying and managing
-the full lifecycle, everything is streamlined for rapid iteration and stable
-operations.
+App Services in inTake offer powerful integration with your development
+workflow. From connecting a repo on GitHub, GitLab, or Bitbucket to deploying
+and managing the full lifecycle, everything is streamlined for rapid iteration
+and stable operations.

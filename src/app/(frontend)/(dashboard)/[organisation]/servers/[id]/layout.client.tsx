@@ -2,6 +2,7 @@
 
 import { useProgress } from '@bprogress/next'
 import dynamic from 'next/dynamic'
+import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { parseAsStringEnum, useQueryState } from 'nuqs'
 import { useEffect, useState, useTransition } from 'react'
@@ -25,6 +26,7 @@ const tabsList = [
   { label: 'Plugins', slug: 'plugins', disabled: false },
   { label: 'Domains', slug: 'domains', disabled: false },
   { label: 'Monitoring', slug: 'monitoring', disabled: false },
+  { label: 'Settings', slug: 'settings', disabled: false },
 ] as const
 
 const LayoutClient = ({
@@ -44,6 +46,7 @@ const LayoutClient = ({
       'monitoring',
       'plugins',
       'domains',
+      'settings',
     ]).withDefault('general'),
   )
 
@@ -94,6 +97,23 @@ const LayoutClient = ({
       <main className='mx-auto mb-20 mt-4 w-full max-w-6xl px-4 pb-10'>
         {children}
       </main>
+
+      {mounted &&
+        createPortal(
+          <div className='mr-2 flex items-center gap-1 text-sm font-normal'>
+            <Link href={`/${params.organisation}/servers/`} className='flex'>
+              <svg
+                fill='currentColor'
+                viewBox='0 0 20 20'
+                className='h-5 w-5 flex-shrink-0 stroke-border'
+                aria-hidden='true'>
+                <path d='M5.555 17.776l8-16 .894.448-8 16-.894-.448z'></path>
+              </svg>{' '}
+              servers
+            </Link>
+          </div>,
+          document.getElementById('projectName') ?? document.body,
+        )}
 
       {mounted &&
         typeof window !== 'undefined' &&

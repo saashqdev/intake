@@ -463,6 +463,10 @@ export interface Server {
    * Number of times connection to the server has been attempted (INTake only).
    */
   connectionAttempts?: number | null;
+  /**
+   * Default build directory for all Dokku applications on this server. Leave empty to use repository root.
+   */
+  globalBuildPath?: string | null;
   deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -670,13 +674,21 @@ export interface Service {
       }[]
     | null;
   populatedVariables?: string | null;
-  builder?: ('railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks' | 'buildPacks') | null;
+  builder?: ('buildPacks' | 'railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks') | null;
   provider?: (string | null) | GitProvider;
-  providerType?: ('github' | 'gitlab' | 'bitbucket') | null;
+  providerType?: ('github' | 'gitlab' | 'bitbucket' | 'azureDevOps') | null;
   githubSettings?: {
     repository: string;
     owner: string;
     branch: string;
+    buildPath: string;
+    port?: number | null;
+  };
+  azureSettings?: {
+    repository: string;
+    branch: string;
+    gitToken: string;
+    username: string;
     buildPath: string;
     port?: number | null;
   };
@@ -856,7 +868,7 @@ export interface Template {
           buildPath: string;
           port?: number | null;
         };
-        builder?: ('railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks' | 'buildPacks') | null;
+        builder?: ('buildPacks' | 'railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks') | null;
         /**
          * select database you want
          */
@@ -1254,6 +1266,16 @@ export interface ServicesSelect<T extends boolean = true> {
         buildPath?: T;
         port?: T;
       };
+  azureSettings?:
+    | T
+    | {
+        repository?: T;
+        branch?: T;
+        gitToken?: T;
+        username?: T;
+        buildPath?: T;
+        port?: T;
+      };
   databaseDetails?:
     | T
     | {
@@ -1382,6 +1404,7 @@ export interface ServersSelect<T extends boolean = true> {
         lastChecked?: T;
       };
   connectionAttempts?: T;
+  globalBuildPath?: T;
   deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;

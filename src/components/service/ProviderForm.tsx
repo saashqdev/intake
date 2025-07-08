@@ -1,16 +1,13 @@
 'use client'
 
 import SidebarToggleButton from '../SidebarToggleButton'
-import { Docker, Heroku } from '../icons'
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert'
+import { Bitbucket, GitLab, Github, MicrosoftAzure } from '../icons'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import SelectSearch from '../ui/select-search'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Hammer, Workflow } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
@@ -33,30 +30,19 @@ import {
 } from '@/components/ui/form'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { buildOptions } from '@/lib/buildOptions'
 import { GitProvider, Service } from '@/payload-types'
 
-const options = [
-  {
-    label: 'Default',
-    value: 'railpack',
-    icon: <Hammer size={20} />,
-    description: 'Build app using railpack',
-  },
-  {
-    label: 'Dockerfile',
-    value: 'dockerfile',
-    icon: <Docker fontSize={20} />,
-    description: 'Build app using Dockerfile',
-  },
-  {
-    label: 'Buildpacks',
-    value: 'buildPacks',
-    icon: <Heroku fontSize={20} />,
-    description: 'Build app using Herokuish buildpacks',
-  },
-]
+import AzureDevopsForm from './AzureDevopsForm'
 
 const githubURLRegex = /^https:\/\/github\.com\/([\w.-]+)\/([\w.-]+)(?:\.git)?$/
+
+const handleBuildPathInputChange =
+  (onChange: (value: string) => void) =>
+  (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/^\/+/, '')
+    onChange(value)
+  }
 
 const GithubForm = ({
   gitProviders,
@@ -86,7 +72,7 @@ const GithubForm = ({
         repository: service?.githubSettings?.repository,
         port: service?.githubSettings?.port ?? 3000,
       },
-      builder: service?.builder ?? 'railpack',
+      builder: service?.builder ?? 'buildPacks',
     },
   })
 
@@ -229,34 +215,40 @@ const GithubForm = ({
                 )
               }
             }}
-            className='flex gap-6'>
-            <div className='flex items-center space-x-2'>
-              <RadioGroupItem value='public' id='r2' />
-              <Label htmlFor='r2'>Manual</Label>
-            </div>
+            className='flex gap-4'>
+            <div className='has-data-[state=checked]:border-ring shadow-xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-none'>
+              <RadioGroupItem
+                value='public'
+                id='r2'
+                className='order-1 after:absolute after:inset-0'
+              />
+              <div className='flex grow items-start gap-3'>
+                <div className='grid grow gap-2'>
+                  <Label>Open source</Label>
 
-            <div className='flex items-center space-x-2'>
-              <RadioGroupItem value='private' id='r3' />
-              <Label htmlFor='r3'>GitHub App</Label>
+                  <p className='text-xs text-muted-foreground'>
+                    Automatic deployment is not available.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className='has-data-[state=checked]:border-ring shadow-xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-none'>
+              <RadioGroupItem
+                value='private'
+                id='r3'
+                className='order-1 after:absolute after:inset-0'
+              />
+              <div className='flex grow items-start gap-3'>
+                <div className='grid grow gap-2'>
+                  <Label>Personal/Organisation</Label>
+
+                  <p className='text-xs text-muted-foreground'>
+                    Automatic deployment is enabled
+                  </p>
+                </div>
+              </div>
             </div>
           </RadioGroup>
-
-          {repoType === 'public' && (
-            <Alert variant={'info'} className='mt-2'>
-              <Workflow className='h-4 w-4' />
-              <AlertTitle>
-                Auto deployments are not supported with manual setup.
-              </AlertTitle>
-              <AlertDescription>
-                To enable automatic deployments on code pushes, configure your{' '}
-                <Link
-                  className='underline'
-                  href={`/${organisation}/integrations?active=github`}>
-                  GitHub App.
-                </Link>
-              </AlertDescription>
-            </Alert>
-          )}
         </div>
 
         {repoType === 'public' ? (
@@ -371,7 +363,7 @@ const GithubForm = ({
                       <Input
                         {...field}
                         value={field.value || ''}
-                        onChange={e => field.onChange(e.target.value)}
+                        onChange={handleBuildPathInputChange(field.onChange)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -553,7 +545,7 @@ const GithubForm = ({
                       <Input
                         {...field}
                         value={field.value || ''}
-                        onChange={e => field.onChange(e.target.value)}
+                        onChange={handleBuildPathInputChange(field.onChange)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -614,7 +606,7 @@ const GithubForm = ({
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                   className='flex w-full flex-col gap-4 md:flex-row'>
-                  {options.map(({ value, label, icon, description }) => (
+                  {buildOptions.map(({ value, label, icon, description }) => (
                     <FormItem
                       className='flex w-full items-center space-x-3 space-y-0'
                       key={value}>
@@ -627,7 +619,9 @@ const GithubForm = ({
                             className='order-1 after:absolute after:inset-0'
                           />
                           <div className='flex grow items-start gap-3'>
-                            {icon}
+                            <div className='flex h-8 w-8 items-center justify-center'>
+                              {icon}
+                            </div>
 
                             <div className='grid grow gap-2'>
                               <Label htmlFor={value}>{label}</Label>
@@ -674,6 +668,9 @@ const ProviderForm = ({
   gitProviders: GitProvider[]
   service: Service
 }) => {
+  const { providerType } = service
+  console.log({ service })
+
   return (
     <div className='space-y-4 rounded bg-muted/30 p-4'>
       <div>
@@ -681,19 +678,36 @@ const ProviderForm = ({
         <p className='text-muted-foreground'>Select the source of your code</p>
       </div>
 
-      <Tabs defaultValue='github'>
-        <TabsList className='mb-4 grid w-max grid-cols-3'>
-          <TabsTrigger value='github'>Github</TabsTrigger>
-          <TabsTrigger value='gitlab' disabled>
-            Gitlab
-          </TabsTrigger>
-          <TabsTrigger value='bitbucket' disabled>
-            Bitbucket
-          </TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue={providerType ?? 'github'}>
+        <div
+          className='w-full overflow-y-hidden overflow-x-scroll'
+          style={{ scrollbarWidth: 'none' }}>
+          <TabsList className='mb-4 grid w-max grid-cols-4'>
+            <TabsTrigger value='github' className='flex gap-1.5'>
+              <Github className='size-4' />
+              Github
+            </TabsTrigger>
+            <TabsTrigger value='azureDevOps' className='flex gap-1.5'>
+              <MicrosoftAzure className='size-4' />
+              Azure DevOps
+            </TabsTrigger>
+            <TabsTrigger value='gitlab' className='flex gap-1.5' disabled>
+              <GitLab className='size-4' />
+              Gitlab
+            </TabsTrigger>
+            <TabsTrigger value='bitbucket' className='flex gap-1.5' disabled>
+              <Bitbucket className='size-4' />
+              Bitbucket
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value='github'>
           <GithubForm gitProviders={gitProviders} service={service} />
+        </TabsContent>
+
+        <TabsContent value='azureDevOps'>
+          <AzureDevopsForm service={service} />
         </TabsContent>
       </Tabs>
     </div>

@@ -8,7 +8,7 @@ import { getIntakeUser } from '@/actions/cloud/inTake'
 import { getGithubStarsAction } from '@/actions/github'
 import Banner from '@/components/Banner'
 import DocSidebar from '@/components/DocSidebar'
-import { GithubSvg } from '@/components/icons/Github'
+import { Github } from '@/components/icons'
 import { NavUser } from '@/components/nav-user'
 import { NavUserSkeleton } from '@/components/skeletons/DashboardLayoutSkeleton'
 import { Button } from '@/components/ui/button'
@@ -79,8 +79,8 @@ const DashboardLayoutInner = async ({
             target='_blank'
             rel='noopener noreferrer'
             className='inline-flex items-center gap-x-1 transition-colors duration-300 hover:text-muted-foreground'
-            href='https://github.com/saashqdev/intake'>
-            <GithubSvg width='1.25em' height='1.25em' />{' '}
+            href='https://github.com/akhil-naidu/intake'>
+            <Github width='1.25em' height='1.25em' />{' '}
             {result?.data?.stars ? result?.data?.stars : 0}
           </Link>
 
@@ -115,10 +115,10 @@ const DashboardLayoutInner = async ({
                       Click on Claim Rewards to continue on{' '}
                       <a
                         className='inline-flex items-center text-foreground underline'
-                        href='https://intake.sh/dashboard'
+                        href='https://gointake.ca/dashboard'
                         target='_blank'
                         rel='noopener noreferrer'>
-                        intake.sh
+                        gointake.ca
                         <ArrowUpRight size={16} />
                       </a>
                     </DialogDescription>

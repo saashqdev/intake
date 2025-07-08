@@ -1,9 +1,10 @@
+'use client'
+
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Node, useReactFlow } from '@xyflow/react'
-import { Hammer, Workflow } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useAction } from 'next-safe-action/hooks'
-import Link from 'next/link'
+import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
@@ -22,7 +23,7 @@ import {
 } from '@/actions/gitProviders'
 import { Docker, Heroku } from '@/components/icons'
 import { ServiceNode } from '@/components/reactflow/types'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -44,10 +45,17 @@ const githubURLRegex = /^https:\/\/github\.com\/([\w.-]+)\/([\w.-]+)(?:\.git)?$/
 
 const options = [
   {
-    label: 'Default',
-    value: 'railpack',
-    icon: <Hammer size={20} />,
-    description: 'Build app using railpack',
+    label: (
+      <div className='flex items-center gap-2'>
+        BuildPacks
+        <Badge variant='secondary' className='text-xs'>
+          Default
+        </Badge>
+      </div>
+    ),
+    value: 'buildPacks',
+    icon: <Heroku width={18} height={18} />,
+    description: 'Build app using buildpacks',
   },
   {
     label: 'Dockerfile',
@@ -56,12 +64,26 @@ const options = [
     description: 'Build app using Docker',
   },
   {
-    label: 'Buildpacks',
-    value: 'buildPacks',
-    icon: <Heroku fontSize={20} />,
-    description: 'Build app using Herokuish buildpacks',
+    label: 'Railpack',
+    value: 'railpack',
+    icon: (
+      <Image
+        src={'/images/railpack.png'}
+        alt='railpack'
+        width={32}
+        height={32}
+      />
+    ),
+    description: 'Build app using railpack',
   },
 ]
+
+const handleBuildPathInputChange =
+  (onChange: (value: string) => void) =>
+  (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/^\/+/, '')
+    onChange(value)
+  }
 
 const AddGithubService = ({
   setNodes,
@@ -108,7 +130,7 @@ const AddGithubService = ({
     resolver: zodResolver(GithubServiceSchema),
     defaultValues: {
       providerType: 'github',
-      builder: service?.builder ?? 'railpack',
+      builder: service?.builder ?? 'buildPacks',
       provider:
         typeof service?.provider === 'object'
           ? service?.provider?.id
@@ -160,7 +182,7 @@ const AddGithubService = ({
     ) {
       getBranches({
         page: 1,
-        limit: 10,
+        limit: 100,
         appId: `${provider.github.appId}`,
         installationId: `${provider.github.installationId}`,
         privateKey: provider.github.privateKey,
@@ -297,34 +319,40 @@ const AddGithubService = ({
                   )
                 }
               }}
-              className='flex gap-6'>
-              <div className='flex items-center space-x-2'>
-                <RadioGroupItem value='public' id='r2' />
-                <Label htmlFor='r2'>Manual</Label>
-              </div>
+              className='flex gap-4'>
+              <div className='has-data-[state=checked]:border-ring shadow-xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-none'>
+                <RadioGroupItem
+                  value='public'
+                  id='r2'
+                  className='order-1 after:absolute after:inset-0'
+                />
+                <div className='flex grow items-start gap-3'>
+                  <div className='grid grow gap-2'>
+                    <Label>open source</Label>
 
-              <div className='flex items-center space-x-2'>
-                <RadioGroupItem value='private' id='r3' />
-                <Label htmlFor='r3'>GitHub App</Label>
+                    <p className='text-xs text-muted-foreground'>
+                      Automatic deployment is not available.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className='has-data-[state=checked]:border-ring shadow-xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-none'>
+                <RadioGroupItem
+                  value='private'
+                  id='r3'
+                  className='order-1 after:absolute after:inset-0'
+                />
+                <div className='flex grow items-start gap-3'>
+                  <div className='grid grow gap-2'>
+                    <Label>personal/organisation</Label>
+
+                    <p className='text-xs text-muted-foreground'>
+                      Automatic deployment is enabled
+                    </p>
+                  </div>
+                </div>
               </div>
             </RadioGroup>
-
-            {repoType === 'public' && (
-              <Alert variant={'info'} className='mt-2'>
-                <Workflow className='h-4 w-4' />
-                <AlertTitle>
-                  Auto deployments are not supported with manual setup.
-                </AlertTitle>
-                <AlertDescription>
-                  To enable automatic deployments on code pushes, configure your{' '}
-                  <Link
-                    className='underline'
-                    href={`/${organisation}/integrations?active=github`}>
-                    GitHub App.
-                  </Link>
-                </AlertDescription>
-              </Alert>
-            )}
           </div>
 
           {repoType === 'public' ? (
@@ -390,49 +418,53 @@ const AddGithubService = ({
                   )}
                 />
 
-                {/* Port */}
-                <FormField
-                  control={form.control}
-                  name='githubSettings.port'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Port</FormLabel>
-                      <FormControl>
-                        <Input
-                          type='number'
-                          {...field}
-                          value={field.value || ''}
-                          onChange={e => {
-                            const value = e.target.value
-                              ? parseInt(e.target.value, 10)
-                              : ''
-                            field.onChange(value)
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className='grid gap-4 md:grid-cols-2'>
+                  {/* Port */}
+                  <FormField
+                    control={form.control}
+                    name='githubSettings.port'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Port</FormLabel>
+                        <FormControl>
+                          <Input
+                            type='number'
+                            {...field}
+                            value={field.value || ''}
+                            onChange={e => {
+                              const value = e.target.value
+                                ? parseInt(e.target.value, 10)
+                                : ''
+                              field.onChange(value)
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                {/* Build path */}
-                <FormField
-                  control={form.control}
-                  name='githubSettings.buildPath'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Build path</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          value={field.value || ''}
-                          onChange={e => field.onChange(e.target.value)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  {/* Build path */}
+                  <FormField
+                    control={form.control}
+                    name='githubSettings.buildPath'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Build path</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value || ''}
+                            onChange={handleBuildPathInputChange(
+                              field.onChange,
+                            )}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
             </>
           ) : (
@@ -598,7 +630,7 @@ const AddGithubService = ({
                         <Input
                           {...field}
                           value={field.value || ''}
-                          onChange={e => field.onChange(e.target.value)}
+                          onChange={handleBuildPathInputChange(field.onChange)}
                         />
                       </FormControl>
                       <FormMessage />
@@ -658,7 +690,9 @@ const AddGithubService = ({
                               className='order-1 after:absolute after:inset-0'
                             />
                             <div className='flex grow items-start gap-3'>
-                              {icon}
+                              <div className='flex h-8 w-8 items-center justify-center'>
+                                {icon}
+                              </div>
 
                               <div className='grid grow gap-2'>
                                 <Label htmlFor={value}>{label}</Label>
