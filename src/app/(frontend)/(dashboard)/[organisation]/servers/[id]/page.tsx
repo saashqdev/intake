@@ -19,6 +19,7 @@ import CloudInitStatusBanner from '@/components/servers/CloudInitStatusBanner'
 import ConnectingStatusBanner from '@/components/servers/ConnectingStatusBanner'
 import ConnectionErrorBanner from '@/components/servers/ConnectionErrorBanner'
 import UpdateEC2InstanceForm from '@/components/servers/CreateEC2InstanceForm'
+import Danger from '@/components/servers/Danger'
 import DomainForm from '@/components/servers/DomainForm'
 import DomainList from '@/components/servers/DomainList'
 import GlobalBuildDirForm from '@/components/servers/GlobalBuildDirForm'
@@ -291,6 +292,8 @@ const ServerSettingsTab = ({ server }: { server: ServerType }) => {
         </div>
         <GlobalBuildDirForm server={server} />
       </div>
+
+      <Danger serverId={server.id} />
     </div>
   )
 }
@@ -529,7 +532,9 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
     if (serverStatus.type === 'disconnected') {
       return (
         <div className='space-y-6'>
-          {shouldShowSSHAlert && <SSHConnectionAlert server={server} />}
+          {shouldShowSSHAlert && server.onboarded && (
+            <SSHConnectionAlert server={server} />
+          )}
           {server.onboarded ? (
             renderTab()
           ) : (

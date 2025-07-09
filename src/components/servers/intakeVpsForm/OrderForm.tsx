@@ -93,10 +93,7 @@ export const OrderForm = ({ inTakeUser }: { inTakeUser: any }) => {
     })
   }
 
-  const onboardingCompleted =
-    !!inTakeUser?.discord?.accountId &&
-    !!inTakeUser?.acceptedTermsDate &&
-    !!inTakeUser?.discord?.isEligible
+  const onboardingCompleted = !!inTakeUser?.acceptedTermsDate
 
   return (
     <>
@@ -129,7 +126,7 @@ export const OrderForm = ({ inTakeUser }: { inTakeUser: any }) => {
                 attach Discord account & accept our Terms of Service{' '}
                 <a
                   className='inline-block text-foreground underline'
-                  href='https://gointake.ca/dashboard?onboarding=true'
+                  href='https://gointake.ca/dashboard?terms-of-service=true'
                   rel='noopener noreferrer'
                   target='_blank'>
                   link
