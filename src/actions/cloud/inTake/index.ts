@@ -179,9 +179,8 @@ export const checkPaymentMethodAction = protectedClient
     actionName: 'checkPaymentMethodAction',
   })
   .schema(checkPaymentMethodSchema)
-  .action(async ({ clientInput, ctx }) => {
+  .action(async ({ clientInput }) => {
     const { token } = clientInput
-    const { userTenant, payload, user } = ctx
 
     if (!token) {
       throw new Error('Invalid inTake account: No access token found')
