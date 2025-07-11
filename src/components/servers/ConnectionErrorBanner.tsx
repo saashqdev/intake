@@ -1,5 +1,6 @@
 'use client'
 
+import { env } from 'env'
 import { Mail, MessageSquare, TriangleAlert } from 'lucide-react'
 import { useState } from 'react'
 
@@ -38,14 +39,14 @@ const ConnectionErrorBanner = ({
 
   const handleEmailContact = () => {
     window.open(
-      'mailto:support@gointake.ca?subject=Server Connection Issue',
+      'mailto:hello@gointake.ca?subject=Server Connection Issue',
       '_blank',
     )
     setIsOpen(false)
   }
 
   const handleDiscordContact = () => {
-    window.open('https://discord.gg/intake', '_blank')
+    window.open(env.NEXT_PUBLIC_DISCORD_INVITE_URL, '_blank')
     setIsOpen(false)
   }
 
@@ -114,13 +115,15 @@ const ConnectionErrorBanner = ({
                         Email Support
                       </Button>
 
-                      <Button
-                        onClick={handleDiscordContact}
-                        className='w-full justify-start gap-3'
-                        variant='outline'>
-                        <MessageSquare className='h-4 w-4' />
-                        Join Discord
-                      </Button>
+                      {env.NEXT_PUBLIC_DISCORD_INVITE_URL && (
+                        <Button
+                          onClick={handleDiscordContact}
+                          className='w-full justify-start gap-3'
+                          variant='outline'>
+                          <MessageSquare className='h-4 w-4' />
+                          Join Discord
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </DialogContent>

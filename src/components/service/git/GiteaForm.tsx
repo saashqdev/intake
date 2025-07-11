@@ -1,5 +1,7 @@
-import SidebarToggleButton from '../SidebarToggleButton'
-import SecretContent from '../ui/blur-reveal'
+'use client'
+
+import SidebarToggleButton from '../../SidebarToggleButton'
+import SecretContent from '../../ui/blur-reveal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Workflow } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
@@ -38,7 +40,7 @@ const GiteaForm = ({ service }: { service: Service }) => {
       giteaSettings: {
         repository: service?.giteaSettings?.repository || '',
         branch: service?.giteaSettings?.branch || '',
-        username: service?.giteaSettings?.username || '',
+        owner: service?.giteaSettings?.owner || '',
         gitToken: service?.giteaSettings?.gitToken || '',
         port: service?.giteaSettings?.port || 3000,
         buildPath: service?.giteaSettings?.buildPath || '/',
@@ -125,7 +127,7 @@ const GiteaForm = ({ service }: { service: Service }) => {
           {/* Repository URL */}
           <FormField
             control={form.control}
-            name='giteaSettings.username'
+            name='giteaSettings.owner'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Username</FormLabel>

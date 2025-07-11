@@ -1,5 +1,7 @@
-import SidebarToggleButton from '../SidebarToggleButton'
-import SecretContent from '../ui/blur-reveal'
+'use client'
+
+import SidebarToggleButton from '../../SidebarToggleButton'
+import SecretContent from '../../ui/blur-reveal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Workflow } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
@@ -38,7 +40,7 @@ const AzureDevopsForm = ({ service }: { service: Service }) => {
       azureSettings: {
         repository: service?.azureSettings?.repository || '',
         branch: service?.azureSettings?.branch || '',
-        username: service?.azureSettings?.username || '',
+        owner: service?.azureSettings?.owner || '',
         gitToken: service?.azureSettings?.gitToken || '',
         port: service?.azureSettings?.port || 3000,
         buildPath: service?.azureSettings?.buildPath || '/',
@@ -125,7 +127,7 @@ const AzureDevopsForm = ({ service }: { service: Service }) => {
           {/* Repository URL */}
           <FormField
             control={form.control}
-            name='azureSettings.username'
+            name='azureSettings.owner'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Username</FormLabel>
