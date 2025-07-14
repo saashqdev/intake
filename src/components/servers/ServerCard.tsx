@@ -1,5 +1,6 @@
 'use client'
 
+import { Kubernetes } from '../icons'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { format } from 'date-fns'
@@ -10,6 +11,7 @@ import {
   Cloud,
   Ellipsis,
   Globe,
+  Lock,
   Server as ServerIcon,
   Settings,
   Shield,
@@ -40,7 +42,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
-import { Server } from '@/payload-types'
+import { ServerType } from '@/payload-types-overrides'
 
 import DeleteServerDialog from './DeleteServerDialog'
 
@@ -48,13 +50,13 @@ const ServerCard = ({
   server,
   organisationSlug,
 }: {
-  server: Server
+  server: ServerType
   organisationSlug: string
 }) => {
   const [open, setOpen] = useState(false)
 
   // Get complete server status logic
-  const getServerStatus = (server: Server) => {
+  const getServerStatus = (server: ServerType) => {
     const isIntake = server?.provider?.toLowerCase() === 'intake'
     const intakeStatus = server.intakeVpsDetails?.status
     const connectionAttempts = server.connectionAttempts ?? 0
@@ -193,7 +195,57 @@ const ServerCard = ({
       }
     }
 
-    // 7. Connected and ready state
+    // 7. dpkg locked state (after onboarding check)
+    if (
+      isConnected &&
+      !isCloudInitRunning &&
+      !isOnboarded &&
+      server.dpkgLocked
+    ) {
+      return {
+        type: 'dpkg-locked' as const,
+        title: 'dpkg Locked',
+        subtitle:
+          'System package manager (dpkg) is currently locked. Wait for ongoing operations to finish.',
+        badge: {
+          variant: 'warning' as const,
+          text: 'dpkg Locked',
+          tooltip: 'dpkg is locked. Wait for package operations to complete.',
+        },
+        borderColor: 'border-l-yellow-500 hover:border-l-yellow-600',
+        showBanner: false,
+        bannerProps: {
+          serverName: server.name,
+        },
+      }
+    }
+
+    // 8. Onboarded but dpkg locked
+    if (
+      isConnected &&
+      !isCloudInitRunning &&
+      isOnboarded &&
+      server.dpkgLocked
+    ) {
+      return {
+        type: 'dpkg-locked-onboarded' as const,
+        title: 'dpkg Locked (Onboarded)',
+        subtitle:
+          'Server is onboarded, but dpkg is currently locked. Wait for package operations to finish.',
+        badge: {
+          variant: 'warning' as const,
+          text: 'dpkg Locked',
+          tooltip: 'dpkg is locked. Wait for package operations to complete.',
+        },
+        borderColor: 'border-l-yellow-500 hover:border-l-yellow-600',
+        showBanner: false,
+        bannerProps: {
+          serverName: server.name,
+        },
+      }
+    }
+
+    // 9. Connected and ready state
     if (isConnected && !isCloudInitRunning && isOnboarded) {
       return {
         type: 'connected' as const,
@@ -232,7 +284,7 @@ const ServerCard = ({
 
   const serverStatus = getServerStatus(server)
 
-  const getIpDetails = (server: Server) => {
+  const getIpDetails = (server: ServerType) => {
     // For SSH connections, prioritize the IP field
     if (server.preferConnectionType === 'ssh') {
       return {
@@ -282,7 +334,7 @@ const ServerCard = ({
     }
   }
 
-  const shouldShowNoPublicIpBadge = (server: Server) => {
+  const shouldShowNoPublicIpBadge = (server: ServerType) => {
     // Show badge if using Tailscale IP (no public IP available)
     return (
       server.preferConnectionType !== 'ssh' &&
@@ -337,10 +389,31 @@ const ServerCard = ({
           <CardHeader className='pb-0'>
             <div className='flex items-start justify-between'>
               <div className='min-w-0 flex-1'>
-                <CardTitle className='mb-2 flex items-center gap-2'>
-                  <ServerIcon className='h-5 w-5 flex-shrink-0' />
-                  <span className='truncate'>{server.name}</span>
-                </CardTitle>
+                <div className='flex items-center gap-2'>
+                  <CardTitle className='mb-2 flex items-center gap-2'>
+                    <ServerIcon className='h-5 w-5 flex-shrink-0' />
+                    <span className='truncate'>{server.name}</span>
+                  </CardTitle>
+                  {['dpkg-locked', 'dpkg-locked-onboarded'].includes(
+                    serverStatus.type,
+                  ) && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span>
+                            <Lock className='h-4 w-4 text-yellow-500' />
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <span>
+                            dpkg is locked. Wait for package operations to
+                            complete.
+                          </span>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
+                </div>
                 <CardDescription className='line-clamp-2 text-sm'>
                   {server.description || 'No description provided'}
                 </CardDescription>
@@ -355,11 +428,17 @@ const ServerCard = ({
                     <Ellipsis className='h-4 w-4' />
                   </Button>
                 </DropdownMenuTrigger>
+
                 <DropdownMenuContent align='end'>
+                  <DropdownMenuItem className='cursor-pointer' disabled>
+                    <Kubernetes />
+                    Create K3 cluster
+                  </DropdownMenuItem>
+
                   <DropdownMenuItem
-                    className='cursor-pointer text-red-600 focus:text-red-600'
+                    className='cursor-pointer text-destructive'
                     onClick={() => setOpen(true)}>
-                    <Trash2 className='mr-2 h-4 w-4' />
+                    <Trash2 className='h-4 w-4' />
                     Delete
                   </DropdownMenuItem>
                 </DropdownMenuContent>

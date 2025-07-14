@@ -95,7 +95,7 @@ const GiteaForm = ({ service }: { service: Service }) => {
                 <FormControl>
                   <Input
                     type='text'
-                    placeholder='ex: https://github.com/akhil-naidu/intake'
+                    placeholder='ex: https://github.com/saashqdev/intake'
                     {...field}
                     value={field.value || ''}
                   />

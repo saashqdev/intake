@@ -1,5 +1,7 @@
 import {
   AlertCircle,
+  Lock,
+  Plus,
   ScreenShareOff,
   Server,
   Settings2,
@@ -12,8 +14,10 @@ import {
   getServerBreadcrumbs,
   getServerGeneralTabDetails,
 } from '@/actions/pages/server'
+import ActionPlaceholder from '@/components/ActionPlaceholder'
 import RefreshButton from '@/components/RefreshButton'
 import SidebarToggleButton from '@/components/SidebarToggleButton'
+import { Kubernetes } from '@/components/icons'
 import UpdateManualServerFrom from '@/components/servers/AttachCustomServerForm'
 import CloudInitStatusBanner from '@/components/servers/CloudInitStatusBanner'
 import ConnectingStatusBanner from '@/components/servers/ConnectingStatusBanner'
@@ -22,6 +26,7 @@ import UpdateEC2InstanceForm from '@/components/servers/CreateEC2InstanceForm'
 import Danger from '@/components/servers/Danger'
 import DomainForm from '@/components/servers/DomainForm'
 import DomainList from '@/components/servers/DomainList'
+import DpkgLockBanner from '@/components/servers/DpkgLockBanner'
 import GlobalBuildDirForm from '@/components/servers/GlobalBuildDirForm'
 import Packages from '@/components/servers/Packages'
 import PluginsList from '@/components/servers/PluginsList'
@@ -39,6 +44,7 @@ import {
   PluginsTabSkeleton,
 } from '@/components/skeletons/ServerSkeleton'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 import { supportedLinuxVersions } from '@/lib/constants'
 import { netdata } from '@/lib/netdata'
 import { SecurityGroup, SshKey } from '@/payload-types'
@@ -351,6 +357,21 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       case 'settings':
         return <ServerSettingsTab server={server} />
 
+      case 'kubernetes':
+        return (
+          <ActionPlaceholder
+            icon={<Kubernetes />}
+            title='Setup your kubernetes'
+            description='Attach your worker nodes and deploy your services using control-plane'
+            action={
+              <Button disabled>
+                <Plus />
+                Attach worker node
+              </Button>
+            }
+          />
+        )
+
       default:
         return (
           <Suspense fallback={<GeneralTabSkeleton />}>
@@ -440,7 +461,46 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       }
     }
 
-    // 7. Connected and ready state
+    console.log('Coming Here')
+
+    console.log({
+      isConnected,
+      isCloudInitRunning,
+      isOnboarded,
+      dpkgLocked: server.dpkgLocked,
+    })
+
+    // 7. dpkg locked state (after onboarding check)
+    if (
+      isConnected &&
+      !isCloudInitRunning &&
+      !isOnboarded &&
+      server.dpkgLocked
+    ) {
+      return {
+        type: 'dpkg-locked' as const,
+        bannerProps: {
+          serverName: server.name,
+        },
+      }
+    }
+
+    // 8. Onboarded but dpkg locked
+    if (
+      isConnected &&
+      !isCloudInitRunning &&
+      isOnboarded &&
+      server.dpkgLocked
+    ) {
+      return {
+        type: 'dpkg-locked-onboarded' as const,
+        bannerProps: {
+          serverName: server.name,
+        },
+      }
+    }
+
+    // 9. Connected and ready state
     if (isConnected && !isCloudInitRunning && isOnboarded) {
       return {
         type: 'connected' as const,
@@ -505,7 +565,36 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       )
     }
 
-    // 5. Show onboarding for onboarding required state
+    // 5. Show dpkg lock banner for dpkg-locked state
+    if (serverStatus.type === 'dpkg-locked') {
+      return (
+        <BannerLayout server={server}>
+          <DpkgLockBanner serverName={server.name} />
+        </BannerLayout>
+      )
+    }
+
+    // 6. In renderContent, show a simple Alert for dpkg-locked-onboarded, but do not block the rest of the UI
+    if (serverStatus.type === 'dpkg-locked-onboarded') {
+      return (
+        <div className='space-y-6'>
+          <Alert variant='warning' className='flex items-center gap-3'>
+            <Lock className='h-5 w-5 text-warning' />
+            <div>
+              <AlertTitle>dpkg is Locked</AlertTitle>
+              <AlertDescription>
+                The system package manager (dpkg) is currently locked. Wait for
+                ongoing package operations to finish before performing further
+                actions.
+              </AlertDescription>
+            </div>
+          </Alert>
+          {renderTab()}
+        </div>
+      )
+    }
+
+    // 7. Show onboarding for onboarding required state
     if (serverStatus.type === 'onboarding') {
       return (
         <BannerLayout server={server}>
@@ -514,7 +603,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       )
     }
 
-    // 6. Show disconnected state with connection error alert
+    // 8. Show disconnected state with connection error alert
     if (serverStatus.type === 'disconnected') {
       return (
         <div className='space-y-6'>
@@ -529,12 +618,12 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       )
     }
 
-    // 7. Show connected and ready state
+    // 9. Show connected and ready state
     if (serverStatus.type === 'connected') {
       return <div className='space-y-6'>{renderTab()}</div>
     }
 
-    // 8. Show unknown status with warning alert
+    // 10. Show unknown status with warning alert
     if (serverStatus.type === 'unknown') {
       return (
         <div className='space-y-6'>

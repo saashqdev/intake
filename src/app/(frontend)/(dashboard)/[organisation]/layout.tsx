@@ -79,7 +79,7 @@ const DashboardLayoutInner = async ({
             target='_blank'
             rel='noopener noreferrer'
             className='inline-flex items-center gap-x-1 transition-colors duration-300 hover:text-muted-foreground'
-            href='https://github.com/akhil-naidu/intake'>
+            href='https://github.com/saashqdev/intake'>
             <Github width='1.25em' height='1.25em' />{' '}
             {result?.data?.stars ? result?.data?.stars : 0}
           </Link>
