@@ -1,4 +1,3 @@
-import { ArrowUpRight } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -11,15 +10,6 @@ import DocSidebar from '@/components/DocSidebar'
 import { Github } from '@/components/icons'
 import { NavUser } from '@/components/nav-user'
 import { NavUserSkeleton } from '@/components/skeletons/DashboardLayoutSkeleton'
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
 import { getCurrentUser } from '@/lib/getCurrentUser'
 import Provider from '@/providers/Provider'
 
@@ -84,7 +74,7 @@ const DashboardLayoutInner = async ({
             {result?.data?.stars ? result?.data?.stars : 0}
           </Link>
 
-          {!hasClaimedCredits && (
+          {/*           {!hasClaimedCredits && (
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant={'ghost'} size={'icon'} className='w-full p-1'>
@@ -126,7 +116,7 @@ const DashboardLayoutInner = async ({
                 </div>
               </DialogContent>
             </Dialog>
-          )}
+          )} Dave commented */}
 
           <Suspense fallback={<NavUserSkeleton />}>
             <NavUserSuspended />
