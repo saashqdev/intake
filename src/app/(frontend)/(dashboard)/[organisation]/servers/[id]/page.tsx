@@ -368,16 +368,16 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
   // Get complete server status logic
   const getServerStatus = (server: ServerType) => {
-    const isDflow = server?.provider?.toLowerCase() === 'dflow'
-    const dflowStatus = server.dflowVpsDetails?.status
+    const isIntake = server?.provider?.toLowerCase() === 'intake'
+    const intakeStatus = server.intakeVpsDetails?.status
     const connectionAttempts = server.connectionAttempts ?? 0
     const connectionStatus = server.connection?.status || 'unknown'
     const isConnected = connectionStatus === 'success'
     const isOnboarded = server.onboarded === true
     const isCloudInitRunning = server.cloudInitStatus === 'running'
 
-    // 1. DFlow provisioning state
-    if (isDflow && dflowStatus === 'provisioning') {
+    // 1. INTake provisioning state
+    if (isIntake && intakeStatus === 'provisioning') {
       return {
         type: 'provisioning' as const,
         bannerProps: {
@@ -386,10 +386,10 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       }
     }
 
-    // 2. DFlow connecting state (attempting to connect)
+    // 2. INTake connecting state (attempting to connect)
     if (
-      isDflow &&
-      dflowStatus === 'running' &&
+      isIntake &&
+      intakeStatus === 'running' &&
       connectionAttempts < 30 &&
       connectionStatus === 'not-checked-yet'
     ) {
@@ -403,8 +403,8 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
     // 3. Connection error state (30+ attempts failed)
     if (
-      isDflow &&
-      dflowStatus === 'running' &&
+      isIntake &&
+      intakeStatus === 'running' &&
       connectionAttempts >= 30 &&
       connectionStatus === 'not-checked-yet'
     ) {
@@ -416,7 +416,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       }
     }
 
-    // 4. Disconnected state (non-DFlow or general connection failure)
+    // 4. Disconnected state (non-INTake or general connection failure)
     if (!isConnected) {
       return {
         type: 'disconnected' as const,
@@ -507,7 +507,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
   const serverStatus = getServerStatus(server)
 
   const renderContent = () => {
-    // 1. Show provisioning banner for DFlow provisioning state
+    // 1. Show provisioning banner for INTake provisioning state
     if (serverStatus.type === 'provisioning') {
       return (
         <BannerLayout server={server}>
@@ -518,7 +518,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       )
     }
 
-    // 2. Show connection attempts banner for DFlow connecting state
+    // 2. Show connection attempts banner for INTake connecting state
     if (serverStatus.type === 'connecting') {
       return (
         <BannerLayout server={server}>
