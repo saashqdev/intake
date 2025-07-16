@@ -1,7 +1,6 @@
 import {
   AlertCircle,
   Lock,
-  Plus,
   ScreenShareOff,
   Server,
   Settings2,
@@ -14,10 +13,8 @@ import {
   getServerBreadcrumbs,
   getServerGeneralTabDetails,
 } from '@/actions/pages/server'
-import ActionPlaceholder from '@/components/ActionPlaceholder'
 import RefreshButton from '@/components/RefreshButton'
 import SidebarToggleButton from '@/components/SidebarToggleButton'
-import { Kubernetes } from '@/components/icons'
 import UpdateManualServerFrom from '@/components/servers/AttachCustomServerForm'
 import CloudInitStatusBanner from '@/components/servers/CloudInitStatusBanner'
 import ConnectingStatusBanner from '@/components/servers/ConnectingStatusBanner'
@@ -28,6 +25,7 @@ import DomainForm from '@/components/servers/DomainForm'
 import DomainList from '@/components/servers/DomainList'
 import DpkgLockBanner from '@/components/servers/DpkgLockBanner'
 import GlobalBuildDirForm from '@/components/servers/GlobalBuildDirForm'
+import KubernetesTab from '@/components/servers/KubernetesTab'
 import Packages from '@/components/servers/Packages'
 import PluginsList from '@/components/servers/PluginsList'
 import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServices'
@@ -44,7 +42,6 @@ import {
   PluginsTabSkeleton,
 } from '@/components/skeletons/ServerSkeleton'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
 import { supportedLinuxVersions } from '@/lib/constants'
 import { netdata } from '@/lib/netdata'
 import { SecurityGroup, SshKey } from '@/payload-types'
@@ -358,19 +355,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
         return <ServerSettingsTab server={server} />
 
       case 'kubernetes':
-        return (
-          <ActionPlaceholder
-            icon={<Kubernetes />}
-            title='Setup your kubernetes'
-            description='Attach your worker nodes and deploy your services using control-plane'
-            action={
-              <Button disabled>
-                <Plus />
-                Attach worker node
-              </Button>
-            }
-          />
-        )
+        return <KubernetesTab />
 
       default:
         return (
@@ -383,16 +368,16 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
   // Get complete server status logic
   const getServerStatus = (server: ServerType) => {
-    const isIntake = server?.provider?.toLowerCase() === 'intake'
-    const intakeStatus = server.intakeVpsDetails?.status
+    const isDflow = server?.provider?.toLowerCase() === 'dflow'
+    const dflowStatus = server.dflowVpsDetails?.status
     const connectionAttempts = server.connectionAttempts ?? 0
     const connectionStatus = server.connection?.status || 'unknown'
     const isConnected = connectionStatus === 'success'
     const isOnboarded = server.onboarded === true
     const isCloudInitRunning = server.cloudInitStatus === 'running'
 
-    // 1. INTake provisioning state
-    if (isIntake && intakeStatus === 'provisioning') {
+    // 1. DFlow provisioning state
+    if (isDflow && dflowStatus === 'provisioning') {
       return {
         type: 'provisioning' as const,
         bannerProps: {
@@ -401,10 +386,10 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       }
     }
 
-    // 2. INTake connecting state (attempting to connect)
+    // 2. DFlow connecting state (attempting to connect)
     if (
-      isIntake &&
-      intakeStatus === 'running' &&
+      isDflow &&
+      dflowStatus === 'running' &&
       connectionAttempts < 30 &&
       connectionStatus === 'not-checked-yet'
     ) {
@@ -418,8 +403,8 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
     // 3. Connection error state (30+ attempts failed)
     if (
-      isIntake &&
-      intakeStatus === 'running' &&
+      isDflow &&
+      dflowStatus === 'running' &&
       connectionAttempts >= 30 &&
       connectionStatus === 'not-checked-yet'
     ) {
@@ -431,7 +416,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       }
     }
 
-    // 4. Disconnected state (non-INTake or general connection failure)
+    // 4. Disconnected state (non-DFlow or general connection failure)
     if (!isConnected) {
       return {
         type: 'disconnected' as const,
@@ -522,7 +507,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
   const serverStatus = getServerStatus(server)
 
   const renderContent = () => {
-    // 1. Show provisioning banner for INTake provisioning state
+    // 1. Show provisioning banner for DFlow provisioning state
     if (serverStatus.type === 'provisioning') {
       return (
         <BannerLayout server={server}>
@@ -533,7 +518,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       )
     }
 
-    // 2. Show connection attempts banner for INTake connecting state
+    // 2. Show connection attempts banner for DFlow connecting state
     if (serverStatus.type === 'connecting') {
       return (
         <BannerLayout server={server}>
