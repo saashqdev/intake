@@ -17,9 +17,10 @@ services:
   # Dynamic Config Generator
   config-generator:
     image: ghcr.io/akhil-naidu/dflow-traefik:latest
+    ports:
+      - '9999:3000'
     container_name: config-generator
     restart: on-failure
-    network_mode: host
     environment:
       - JWT_TOKEN=${JWT_TOKEN}
       - WILD_CARD_DOMAIN=${WILD_CARD_DOMAIN}
@@ -47,24 +48,11 @@ services:
 
   # Payload CMS App (from your custom Dockerfile)
   payload-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_WEBSITE_URL: ${NEXT_PUBLIC_WEBSITE_URL}
-        DATABASE_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/${MONGO_DB_NAME}?authSource=admin
-        REDIS_URI: redis://redis:6379
-        PAYLOAD_SECRET: ${PAYLOAD_SECRET}
-        TAILSCALE_AUTH_KEY: ${TAILSCALE_AUTH_KEY}
-        TAILSCALE_OAUTH_CLIENT_SECRET: ${TAILSCALE_OAUTH_CLIENT_SECRET}
-        NEXT_PUBLIC_PROXY_DOMAIN_URL: ${NEXT_PUBLIC_PROXY_DOMAIN_URL}
-        NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN: ${NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN}
-        NEXT_PUBLIC_BETTER_STACK_INGESTING_URL: ${NEXT_PUBLIC_BETTER_STACK_INGESTING_URL}
-        RESEND_API_KEY: ${RESEND_API_KEY}
-        RESEND_SENDER_EMAIL: ${RESEND_SENDER_EMAIL}
-        RESEND_SENDER_NAME: ${RESEND_SENDER_NAME}
-        NEXT_PUBLIC_PROXY_CNAME: ${NEXT_PUBLIC_PROXY_CNAME}
-        NEXT_PUBLIC_DISCORD_INVITE_URL: ${NEXT_PUBLIC_DISCORD_INVITE_URL}
+    image: intake
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
     container_name: payload-app
     restart: always
     depends_on:
@@ -77,6 +65,7 @@ services:
       PAYLOAD_SECRET: ${PAYLOAD_SECRET}
       TAILSCALE_AUTH_KEY: ${TAILSCALE_AUTH_KEY}
       TAILSCALE_OAUTH_CLIENT_SECRET: ${TAILSCALE_OAUTH_CLIENT_SECRET}
+      TAILSCALE_TAILNET: ${TAILSCALE_TAILNET}
       NEXT_PUBLIC_PROXY_DOMAIN_URL: ${NEXT_PUBLIC_PROXY_DOMAIN_URL}
       NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN: ${NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN}
       NEXT_PUBLIC_BETTER_STACK_INGESTING_URL: ${NEXT_PUBLIC_BETTER_STACK_INGESTING_URL}
@@ -85,7 +74,7 @@ services:
       RESEND_SENDER_NAME: ${RESEND_SENDER_NAME}
       NEXT_PUBLIC_PROXY_CNAME: ${NEXT_PUBLIC_PROXY_CNAME}
       NEXT_PUBLIC_DISCORD_INVITE_URL: ${NEXT_PUBLIC_DISCORD_INVITE_URL}
-    network_mode: host # To expose to Traefik via localhost/tailscale
+    network_mode: host
     volumes:
       - ./scripts:/app/scripts
 
