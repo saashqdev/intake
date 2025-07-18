@@ -96,6 +96,7 @@ Setup DNS records with your provider:
   # config-generator
   WILD_CARD_DOMAIN=up.example.com
   JWT_TOKEN=your-jwt-token
+  PROXY_PORT=9999
 
   # inTake app
   NEXT_PUBLIC_WEBSITE_URL=intake.up.example.com
