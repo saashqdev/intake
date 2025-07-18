@@ -48,7 +48,7 @@ services:
 
   # Payload CMS App (from your custom Dockerfile)
   payload-app:
-    image: intake
+    image: intake:latest
     cap_add:
       - NET_ADMIN
     devices:

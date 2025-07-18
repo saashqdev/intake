@@ -1,5 +1,5 @@
 import { softDeletePlugin } from '@payload-bites/soft-delete'
-import { postgresAdapter } from '@payloadcms/db-postgres'
+import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { resendAdapter } from '@payloadcms/email-resend'
 import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
@@ -77,11 +77,8 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
-  db: postgresAdapter({
-    idType: 'uuid',
-    pool: {
-      connectionString: process.env.DATABASE_URI,
-    },
+  db: mongooseAdapter({
+    url: env.DATABASE_URI,
   }),
   sharp,
   plugins: [
