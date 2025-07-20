@@ -99,11 +99,11 @@ Setup DNS records with your provider:
   PROXY_PORT=9999
 
   # inTake app
-  NEXT_PUBLIC_WEBSITE_URL=intake.up.example.com
+  NEXT_PUBLIC_WEBSITE_URL=http://localhost:3000
   DATABASE_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/${MONGO_DB_NAME}?authSource=admin
   PAYLOAD_SECRET=your-secret
 
-  NEXT_PUBLIC_PROXY_DOMAIN_URL=https://intake-traefik.up.example.com
+  NEXT_PUBLIC_PROXY_DOMAIN_URL=https://up.example.com
   NEXT_PUBLIC_PROXY_CNAME=cname.up.example.com
 
   # tailscale
@@ -193,7 +193,7 @@ docker compose --env-file .env up -d
 Make a `POST` request to complete initial setup:
 
 ```
-http://<YOUR_SERVER_IP>:9999/configuration
+http://<YOUR_SERVER_IP>:9999/configuration/default
 ```
 
 ## 🤝 Contributors

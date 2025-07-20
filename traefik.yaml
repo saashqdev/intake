@@ -1,0 +1,25 @@
+   entryPoints:
+     web:
+       address: ":80"
+     websecure:
+       address: ":443"
+
+   providers:
+     file:
+       directory: /etc/traefik/dynamic
+       watch: true
+
+   certificatesResolvers:
+     letsencrypt:
+       acme:
+         email: saashqdev@gmail.com
+         storage: /etc/traefik/acme.json
+         httpChallenge:
+           entryPoint: web  # Used for app-specific domains
+
+   api:
+     dashboard: false
+     insecure: false  # ⚠️ Secure this in production
+
+   log:
+     level: INFO
