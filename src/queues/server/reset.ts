@@ -1,42 +1,30 @@
 import { addUninstallRailpackQueue } from '../builder/uninstallRailpack'
 import { addUninstallDokkuQueue } from '../dokku/uninstall'
 import { addUninstallNetdataQueue } from '../netdata/uninstall'
+import configPromise from '@payload-config'
 import { Job } from 'bullmq'
 import { NodeSSH } from 'node-ssh'
+import { getPayload } from 'payload'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { SSHType, dynamicSSH } from '@/lib/ssh'
 import { waitForJobCompletion } from '@/lib/utils/waitForJobCompletion'
-import { Server } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
 interface QueueArgs {
   sshDetails: SSHType
   tenant: {
     slug: string
-  }
-  server: ServerType
-  serverDetails: {
     id: string
-    server: Server['provider']
-    kernel: Record<string, string>
-    hardware: {
-      cpu: { cores: string; frequency: string; model: string }
-      memory: { total: string; type: string }
-      storage: { total: string }
-      virtualization: { type: string; detection_method: string }
-    }
-    network: {
-      hostname: string
-      timezone: { name: string; abbreviation: string }
-      cloud: { provider: string; instance_type: string; region: string }
-    }
   }
+  serverDetails: ServerType
 }
 
 export const addResetServerQueue = async (data: QueueArgs) => {
+  const payload = await getPayload({ config: configPromise })
+
   const QUEUE_NAME = `server-${data.serverDetails.id}-reset`
 
   const resetServerQueue = getQueue({
@@ -47,7 +35,7 @@ export const addResetServerQueue = async (data: QueueArgs) => {
   const worker = getWorker<QueueArgs>({
     name: QUEUE_NAME,
     processor: async job => {
-      const { sshDetails, serverDetails, tenant, server } = job.data
+      const { sshDetails, serverDetails, tenant } = job.data
       let ssh: NodeSSH | null = null
 
       try {
@@ -58,7 +46,7 @@ export const addResetServerQueue = async (data: QueueArgs) => {
           sshDetails,
           serverDetails: {
             id: serverDetails.id,
-            provider: serverDetails.server,
+            provider: serverDetails.provider,
           },
           tenant,
         })
@@ -73,16 +61,19 @@ export const addResetServerQueue = async (data: QueueArgs) => {
         })
 
         // Uninstall netdata
-        const isNetdataAvailable =
-          server.netdataVersion &&
-          serverDetails &&
-          serverDetails.hardware &&
-          serverDetails.network &&
-          serverDetails.kernel
+        // todo: Do we need to check the commented lines?
+        const isNetdataAvailable = serverDetails.netdataVersion
+        // serverDetails.hardware &&
+        // serverDetails.network &&
+        // serverDetails.kernel
 
-        await waitForJobCompletion(uninstallDokkuJob)
+        const uninstallDokkuResult =
+          await waitForJobCompletion(uninstallDokkuJob)
 
-        await waitForJobCompletion(uninstallRailpackJob)
+        const uninstallRailpackResult =
+          await waitForJobCompletion(uninstallRailpackJob)
+
+        let uninstallNetdataResult: { success: boolean } = { success: true }
 
         if (isNetdataAvailable) {
           const uninstallNetdataJob = await addUninstallNetdataQueue({
@@ -90,8 +81,59 @@ export const addResetServerQueue = async (data: QueueArgs) => {
             sshDetails,
             tenant,
           })
-          await waitForJobCompletion(uninstallNetdataJob)
+          uninstallNetdataResult =
+            await waitForJobCompletion(uninstallNetdataJob)
         }
+
+        await payload.update({
+          id: serverDetails.id,
+          data: { onboarded: false, domains: [], plugins: [] },
+          collection: 'servers',
+        })
+
+        const projectResponse = await payload.update({
+          collection: 'projects',
+          where: {
+            and: [
+              {
+                server: {
+                  equals: serverDetails.id,
+                },
+              },
+              {
+                tenant: {
+                  equals: tenant.id,
+                },
+              },
+            ],
+          },
+          data: {
+            deletedAt: new Date().toISOString(),
+          },
+        })
+
+        const projectId = projectResponse.docs?.[0]?.id
+
+        await payload.update({
+          collection: 'services',
+          where: {
+            and: [
+              {
+                project: {
+                  equals: projectId,
+                },
+              },
+              {
+                tenant: {
+                  equals: tenant.id,
+                },
+              },
+            ],
+          },
+          data: {
+            deletedAt: new Date().toISOString(),
+          },
+        })
 
         // Log success message
         sendEvent({
@@ -105,6 +147,16 @@ export const addResetServerQueue = async (data: QueueArgs) => {
           action: 'refresh',
           tenantSlug: tenant.slug,
         })
+
+        if (
+          uninstallDokkuResult.success &&
+          uninstallRailpackResult.success &&
+          (isNetdataAvailable ? uninstallNetdataResult.success : true)
+        ) {
+          return { success: true }
+        }
+
+        return { success: false }
       } catch (error) {
         // Handle errors and log them
         const err = error as Error
@@ -134,7 +186,7 @@ export const addResetServerQueue = async (data: QueueArgs) => {
 
   const id = `reset-server:${new Date().getTime()}`
 
-  return await resetServerQueue.add(id, {
+  return await resetServerQueue.add(id, data, {
     jobId: id,
     ...jobOptions,
   })
