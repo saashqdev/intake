@@ -1,0 +1,14 @@
+http:
+  routers:
+    intake-app-router:
+      rule: Host(`intake.up.example.com`)
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      service: intake-app-service
+  services:
+    intake-app-service:
+      loadBalancer:
+        servers:
+          - url: http://payload-app:3000

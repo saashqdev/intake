@@ -1,0 +1,14 @@
+http:
+  routers:
+    intake-traefik-router:
+      rule: Host(`intake-traefik.up.example.com`)
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      service: intake-traefik-service
+  services:
+    intake-traefik-service:
+      loadBalancer:
+        servers:
+          - url: http://config-generator:9999
