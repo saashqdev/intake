@@ -4,7 +4,7 @@ import axios from 'axios'
 import { revalidatePath } from 'next/cache'
 
 import { INTAKE_CONFIG } from '@/lib/constants'
-import { protectedClient } from '@/lib/safe-action'
+import { protectedClient, publicClient } from '@/lib/safe-action'
 import { CloudProviderAccount } from '@/payload-types'
 
 import { VpsPlan } from './types'
@@ -14,51 +14,66 @@ import {
   connectINTakeAccountSchema,
   createVPSOrderActionSchema,
   deleteINTakeAccountSchema,
+  updateINTakeAccountSchema,
 } from './validator'
 
 export const connectINTakeAccountAction = protectedClient
   .metadata({
-    actionName: 'connectAWSAccountAction',
+    actionName: 'connectINTakeAccountAction',
   })
   .schema(connectINTakeAccountSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { accessToken, name, id } = clientInput
+    const { accessToken, name } = clientInput
 
     const { userTenant, payload } = ctx
     let response: CloudProviderAccount
 
-    if (id) {
-      response = await payload.update({
-        collection: 'cloudProviderAccounts',
-        id,
-        data: {
-          type: 'inTake',
-          inTakeDetails: {
-            accessToken,
-          },
-          name,
+    response = await payload.create({
+      collection: 'cloudProviderAccounts',
+      data: {
+        type: 'inTake',
+        inTakeDetails: {
+          accessToken,
         },
-      })
-    } else {
-      response = await payload.create({
-        collection: 'cloudProviderAccounts',
-        data: {
-          type: 'inTake',
-          inTakeDetails: {
-            accessToken,
-          },
-          tenant: userTenant.tenant,
-          name,
-        },
-      })
-    }
+        tenant: userTenant.tenant,
+        name,
+      },
+    })
 
     revalidatePath(`${userTenant.tenant.slug}/servers/add-new-server`)
     console.log(response)
     return response
   })
 
-export const getINTakePlansAction = protectedClient
+export const updateINTakeAccountAction = protectedClient
+  .metadata({
+    actionName: 'updateINTakeAccountAction',
+  })
+  .schema(updateINTakeAccountSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { id, accessToken, name } = clientInput
+
+    const { userTenant, payload } = ctx
+    let response: CloudProviderAccount
+
+    response = await payload.update({
+      collection: 'cloudProviderAccounts',
+      id,
+      data: {
+        type: 'inTake',
+        inTakeDetails: {
+          accessToken,
+        },
+        name,
+      },
+    })
+
+    revalidatePath(`${userTenant.tenant.slug}/servers/add-new-server`)
+    console.log(response)
+    return response
+  })
+
+export const getINTakePlansAction = publicClient
   .metadata({
     actionName: 'getINTakePlansAction',
   })
@@ -350,7 +365,7 @@ export const checkAccountConnection = protectedClient
 
 export const deleteINTakeAccountAction = protectedClient
   .metadata({
-    actionName: 'deleteINTakeAccountSchema',
+    actionName: 'deleteINTakeAccountAction',
   })
   .schema(deleteINTakeAccountSchema)
   .action(async ({ clientInput, ctx }) => {

@@ -3,11 +3,13 @@ import { Plus, Server } from 'lucide-react'
 import Link from 'next/link'
 import { Suspense } from 'react'
 
-import { getServersDetails } from '@/actions/pages/server'
+import { getServersDetailsAction } from '@/actions/pages/server'
+import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import RefreshButton from '@/components/RefreshButton'
 import ServerTerminalClient from '@/components/ServerTerminalClient'
 import SidebarToggleButton from '@/components/SidebarToggleButton'
 import ServerCard from '@/components/servers/ServerCard'
+import SyncINTake from '@/components/servers/SyncINTake'
 import {
   CreateServerButtonSkeleton,
   ServersSkeleton,
@@ -31,7 +33,7 @@ const SuspendedServers = async ({
   organisationSlug: string
   refreshServerDetails: boolean
 }) => {
-  const result = await getServersDetails({
+  const result = await getServersDetailsAction({
     populateServerDetails: !refreshServerDetails,
     refreshServerDetails,
   })
@@ -39,7 +41,9 @@ const SuspendedServers = async ({
 
   return (
     <>
-      {servers.length ? (
+      {result?.serverError ? (
+        <AccessDeniedAlert error={result?.serverError} />
+      ) : servers.length ? (
         <div className='grid gap-4 md:grid-cols-3'>
           {servers.map(server => (
             <ServerCard
@@ -103,7 +107,7 @@ const ServersPage = async ({ params, searchParams }: PageProps) => {
           <RefreshButton />
 
           <Suspense fallback={<CreateServerButtonSkeleton />}>
-            {/* <SyncINTake /> Dave commented */}
+            <SyncINTake />
 
             <Link href={`/${syncParams.organisation}/servers/add-new-server`}>
               <Button variant={'default'}>

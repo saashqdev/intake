@@ -75,6 +75,7 @@
     "pnpx",
     "posthog",
     "predeploy",
+    "Procfile",
     "rabbitmq",
     "railpack",
     "railway",

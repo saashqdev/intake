@@ -1,4 +1,3 @@
-import { notFound } from 'next/navigation'
 import type { SearchParams } from 'nuqs/server'
 import { Suspense } from 'react'
 
@@ -7,6 +6,7 @@ import {
   fetchServiceResourceStatusAction,
   fetchServiceScaleStatusAction,
 } from '@/actions/service'
+import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import Backup from '@/components/service/Backup'
 import DeploymentList from '@/components/service/DeploymentList'
 import DomainsTab from '@/components/service/DomainsTab'
@@ -33,8 +33,8 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
 
   const serviceDetails = await getServiceDeploymentsBackups({ id: serviceId })
 
-  if (!serviceDetails?.data?.service) {
-    notFound()
+  if (!serviceDetails?.data?.service || serviceDetails?.serverError) {
+    return <AccessDeniedAlert error={serviceDetails?.serverError!} />
   }
   const { service, deployments, backupsDocs } = serviceDetails.data
 

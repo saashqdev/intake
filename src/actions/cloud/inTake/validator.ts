@@ -3,7 +3,12 @@ import { z } from 'zod'
 export const connectINTakeAccountSchema = z.object({
   accessToken: z.string().min(1),
   name: z.string().min(1),
-  id: z.string().optional(),
+})
+
+export const updateINTakeAccountSchema = z.object({
+  accessToken: z.string().min(1),
+  name: z.string().min(1),
+  id: z.string(),
 })
 
 export const getINTakePlansActionSchema = z.object({ accessToken: z.string() })
