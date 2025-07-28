@@ -1,5 +1,6 @@
 'use client'
 
+import { FileText } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
 // Dynamically import ServerTerminal with ssr: false
@@ -14,7 +15,15 @@ const LogsTabClient = ({
   serverId: string
   serviceId: string
 }) => {
-  return <LogsTab serverId={serverId} serviceId={serviceId} />
+  return (
+    <>
+      <div className='mb-4 flex items-center gap-1.5'>
+        <FileText />
+        <h4 className='text-lg font-semibold'>Logs</h4>
+      </div>
+      <LogsTab serverId={serverId} serviceId={serviceId} />
+    </>
+  )
 }
 
 export default LogsTabClient

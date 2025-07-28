@@ -81,7 +81,7 @@ export const getActionAccess = {
   connectINTakeAccountAction: ['cloudProviderAccounts.create'],
   checkAccountConnection: ['cloudProviderAccounts.read'],
   createVPSOrderAction: [
-    'servers.created',
+    'servers.create',
     'cloudProviderAccounts.read',
     'sshKeys.read',
   ],

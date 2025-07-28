@@ -2,7 +2,7 @@
 
 import { Button } from '../ui/button'
 import { format, formatDistanceToNow } from 'date-fns'
-import { ServerCog } from 'lucide-react'
+import { Rocket, ServerCog } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
 import { Card, CardContent } from '@/components/ui/card'
@@ -40,6 +40,10 @@ const DeploymentList = ({
 
   return (
     <section className='space-y-4'>
+      <div className='mb-4 flex items-center gap-1.5'>
+        <Rocket />
+        <h4 className='text-lg font-semibold'>Deployments</h4>
+      </div>
       {filteredDeployments.length ? (
         filteredDeployments?.map(deploymentDetails => {
           const { id, status, createdAt, logs } = deploymentDetails
