@@ -95,7 +95,7 @@ MONGO_INITDB_ROOT_PASSWORD=password
 MONGO_DB_NAME=inTake
 
 # redis
-REDIS_URI="redis://localhost:6379"
+REDIS_URI="redis://redis:6379"
 
 # config-generator
 WILD_CARD_DOMAIN=up.example.com
@@ -107,7 +107,7 @@ NEXT_PUBLIC_WEBSITE_URL=intake.up.example.com
 DATABASE_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/${MONGO_DB_NAME}?authSource=admin
 PAYLOAD_SECRET=your-secret
 
-NEXT_PUBLIC_PROXY_DOMAIN_URL=https://intake-traefik.up.example.com
+NEXT_PUBLIC_PROXY_DOMAIN_URL=up.example.com
 NEXT_PUBLIC_PROXY_CNAME=cname.up.example.com
 
 # tailscale
@@ -125,30 +125,7 @@ RESEND_SENDER_EMAIL=no-reply@up.example.com
 RESEND_SENDER_NAME=inTake System
 ```
 
-#### 5. Build the Docker image
-
-```bash
-source .env
-
-docker build \
---build-arg NEXT_PUBLIC_WEBSITE_URL=$NEXT_PUBLIC_WEBSITE_URL \
---build-arg DATABASE_URI=$DATABASE_URI \
---build-arg REDIS_URI=$REDIS_URI \
---build-arg PAYLOAD_SECRET=$PAYLOAD_SECRET \
---build-arg TAILSCALE_AUTH_KEY=$TAILSCALE_AUTH_KEY \
---build-arg TAILSCALE_OAUTH_CLIENT_SECRET=$TAILSCALE_OAUTH_CLIENT_SECRET \
---build-arg TAILSCALE_TAILNET=$TAILSCALE_TAILNET \
---build-arg NEXT_PUBLIC_PROXY_DOMAIN_URL=$NEXT_PUBLIC_PROXY_DOMAIN_URL \
---build-arg NEXT_PUBLIC_PROXY_CNAME=$NEXT_PUBLIC_PROXY_CNAME \
---build-arg NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN=$NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN \
---build-arg NEXT_PUBLIC_BETTER_STACK_INGESTING_URL=$NEXT_PUBLIC_BETTER_STACK_INGESTING_URL \
---build-arg RESEND_API_KEY=$RESEND_API_KEY \
---build-arg RESEND_SENDER_EMAIL=$RESEND_SENDER_EMAIL \
---build-arg RESEND_SENDER_NAME=$RESEND_SENDER_NAME \
--t intake .
-```
-
-#### 6. Traefik Setup
+#### 5. Traefik Setup
 
 1. Create `traefik.yaml` file at the root directory.
 2. Change the email
@@ -226,9 +203,29 @@ http:
           - url: http://config-generator:9999
 ```
 
-#### 7. Start the Docker Compose Stack
+6. create `dynamic/intake-beszel.yaml` file
+
+```yaml
+http:
+  routers:
+    intake-beszel-router:
+      rule: Host(`monitoring.up.example.com`)
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      service: intake-beszel-service
+  services:
+    intake-beszel-service:
+      loadBalancer:
+        servers:
+          - url: http://beszel:8090
+```
+
+#### 6. Start the Docker Compose Stack
 
 ```bash
+source .env
 docker compose --env-file .env up -d
 ```
 
