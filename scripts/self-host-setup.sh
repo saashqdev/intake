@@ -62,7 +62,7 @@ prompt_with_default() {
     '' \
     '=====================================================' \
     '        🚀 Welcome inTake self-host setup 🚀' \
-    '        🌐 Website:    https://dflow.sh  ' \
+    '        🌐 Website:    https://intake.sh  ' \
     '=====================================================' \
     ''
 }
@@ -131,7 +131,7 @@ cat <<EOF > .env
 # mongodb
 MONGO_INITDB_ROOT_USERNAME=admin
 MONGO_INITDB_ROOT_PASSWORD=password
-MONGO_DB_NAME=dFlow
+MONGO_DB_NAME=inTake
 
 # redis
 REDIS_URI="redis://redis:6379"
@@ -141,7 +141,7 @@ WILD_CARD_DOMAIN="$WILD_CARD_DOMAIN"
 JWT_TOKEN="$PAYLOAD_SECRET"
 PROXY_PORT=9999
 
-# dFlow app
+# inTake app
 NEXT_PUBLIC_WEBSITE_URL=intake.$WILD_CARD_DOMAIN
 DATABASE_URI=mongodb://$MONGO_INITDB_ROOT_USERNAME:$MONGO_INITDB_ROOT_PASSWORD@mongodb:27017/${MONGO_DB_NAME}?authSource=admin
 PAYLOAD_SECRET="$PAYLOAD_SECRET"

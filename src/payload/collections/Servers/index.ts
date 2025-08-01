@@ -67,7 +67,7 @@ export const Servers: CollectionConfig = {
     afterRead: [
       populateServerDetails,
       nextBillingDateAfterRead,
-      // populateDflowVpsDetails,
+      // populateIntakeVpsDetails,
     ],
   },
   fields: [
@@ -382,8 +382,8 @@ export const Servers: CollectionConfig = {
           value: 'azure',
         },
         {
-          label: 'dFlow',
-          value: 'dflow',
+          label: 'inTake',
+          value: 'intake',
         },
         {
           label: 'Other',
@@ -559,11 +559,11 @@ export const Servers: CollectionConfig = {
       ],
     },
     {
-      name: 'dflowVpsDetails',
+      name: 'intakeVpsDetails',
       type: 'group',
       admin: {
-        condition: data => data.provider === 'dflow',
-        description: 'dFlow Vps details',
+        condition: data => data.provider === 'intake',
+        description: 'inTake Vps details',
         position: 'sidebar',
       },
       fields: [
@@ -668,14 +668,14 @@ export const Servers: CollectionConfig = {
         position: 'sidebar',
         description:
           'Number of times connection to the server has been attempted (DFlow only).',
-        condition: data => data.provider === 'dflow',
+        condition: data => data.provider === 'intake',
       },
       hooks: {
         beforeValidate: [
           args => {
             const { value, data } = args || {}
 
-            return data?.provider === 'dflow' ? (value ?? 0) : undefined
+            return data?.provider === 'intake' ? (value ?? 0) : undefined
           },
         ],
       },

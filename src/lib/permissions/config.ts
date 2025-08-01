@@ -77,9 +77,9 @@ export const getActionAccess = {
   removeUserFromTeamAction: ['team.delete'],
   generateInviteLinkAction: ['team.update'],
 
-  // dFlow cloud actions
+  // inTake cloud actions
   getCloudProvidersAccountsAction: ['cloudProviderAccounts.read'],
-  syncDflowServersAction: [
+  syncIntakeServersAction: [
     'servers.read',
     'servers.create',
     'cloudProviderAccounts.read',
@@ -93,7 +93,7 @@ export const getActionAccess = {
   ],
   checkPaymentMethodAction: ['cloudProviderAccounts.read'],
   deleteDFlowAccountAction: ['cloudProviderAccounts.delete'],
-  getDflowUser: ['cloudProviderAccounts.read'],
+  getIntakeUser: ['cloudProviderAccounts.read'],
   updateDFlowAccountAction: ['cloudProviderAccounts.update'],
 
   // AWS cloud actions

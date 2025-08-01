@@ -208,7 +208,7 @@ export const addInstallMonitoringQueue = async (data: QueueArgs) => {
 
         // Fetch the official Beszel Agent template from the API
         const res = await fetch(
-          'https://dflow.sh/api/templates?where[and][0][name][equals]=Beszel%20Agent&where[and][1][type][equals]=official',
+          'https://intake.sh/api/templates?where[and][0][name][equals]=Beszel%20Agent&where[and][1][type][equals]=official',
         )
 
         if (!res.ok) {

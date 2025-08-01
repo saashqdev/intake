@@ -115,6 +115,6 @@ of inTake.
 
 Thanks to all who have contributed to inTake!
 
-<a href="https://github.com/akhil-naidu/dflow/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=akhil-naidu/dflow" />
+<a href="https://github.com/akhil-naidu/intake/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=akhil-naidu/intake" />
 </a>
