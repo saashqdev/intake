@@ -25,6 +25,12 @@ export const getActionAccess = {
     'projects.read',
     'securityGroups.read',
   ],
+  installMonitoringToolsAction: [
+    'servers.read',
+    'projects.read',
+    'projects.create',
+    'services.create',
+  ],
 
   // Plugin actions
   installPluginAction: ['servers.update'],
@@ -71,14 +77,14 @@ export const getActionAccess = {
   removeUserFromTeamAction: ['team.delete'],
   generateInviteLinkAction: ['team.update'],
 
-  // inTake cloud actions
+  // dFlow cloud actions
   getCloudProvidersAccountsAction: ['cloudProviderAccounts.read'],
-  syncIntakeServersAction: [
+  syncDflowServersAction: [
     'servers.read',
     'servers.create',
     'cloudProviderAccounts.read',
   ],
-  connectINTakeAccountAction: ['cloudProviderAccounts.create'],
+  connectDFlowAccountAction: ['cloudProviderAccounts.create'],
   checkAccountConnection: ['cloudProviderAccounts.read'],
   createVPSOrderAction: [
     'servers.create',
@@ -86,9 +92,9 @@ export const getActionAccess = {
     'sshKeys.read',
   ],
   checkPaymentMethodAction: ['cloudProviderAccounts.read'],
-  deleteINTakeAccountAction: ['cloudProviderAccounts.delete'],
-  getIntakeUser: ['cloudProviderAccounts.read'],
-  updateINTakeAccountAction: ['cloudProviderAccounts.update'],
+  deleteDFlowAccountAction: ['cloudProviderAccounts.delete'],
+  getDflowUser: ['cloudProviderAccounts.read'],
+  updateDFlowAccountAction: ['cloudProviderAccounts.update'],
 
   // AWS cloud actions
   createEC2InstanceAction: [

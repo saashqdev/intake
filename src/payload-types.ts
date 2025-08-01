@@ -321,6 +321,10 @@ export interface Project {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  /**
+   * Hide this project from the public view.
+   */
+  hidden?: boolean | null;
   deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -460,7 +464,7 @@ export interface Server {
       }[]
     | null;
   onboarded?: boolean | null;
-  provider: 'digitalocean' | 'aws' | 'gcp' | 'azure' | 'intake' | 'other';
+  provider: 'digitalocean' | 'aws' | 'gcp' | 'azure' | 'dflow' | 'other';
   cloudProviderAccount?: (string | null) | CloudProviderAccount;
   /**
    * AWS EC2 instance details
@@ -532,9 +536,9 @@ export interface Server {
     architecture?: string | null;
   };
   /**
-   * inTake Vps details
+   * dFlow Vps details
    */
-  intakeVpsDetails?: {
+  dflowVpsDetails?: {
     orderId?: string | null;
     instanceId?: number | null;
     status?:
@@ -569,7 +573,7 @@ export interface Server {
     lastChecked?: string | null;
   };
   /**
-   * Number of times connection to the server has been attempted (INTake only).
+   * Number of times connection to the server has been attempted (DFlow only).
    */
   connectionAttempts?: number | null;
   /**
@@ -609,8 +613,8 @@ export interface CloudProviderAccount {
   id: string;
   tenant?: (string | null) | Tenant;
   name: string;
-  type: 'inTake' | 'aws' | 'azure' | 'gcp' | 'digitalocean';
-  inTakeDetails?: {
+  type: 'dFlow' | 'aws' | 'azure' | 'gcp' | 'digitalocean';
+  dFlowDetails?: {
     accessToken: string;
   };
   awsDetails?: {
@@ -1361,6 +1365,7 @@ export interface ProjectsSelect<T extends boolean = true> {
   description?: T;
   server?: T;
   services?: T;
+  hidden?: T;
   deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1563,7 +1568,7 @@ export interface ServersSelect<T extends boolean = true> {
         keyName?: T;
         architecture?: T;
       };
-  intakeVpsDetails?:
+  dflowVpsDetails?:
     | T
     | {
         orderId?: T;
@@ -1643,7 +1648,7 @@ export interface CloudProviderAccountsSelect<T extends boolean = true> {
   tenant?: T;
   name?: T;
   type?: T;
-  inTakeDetails?:
+  dFlowDetails?:
     | T
     | {
         accessToken?: T;

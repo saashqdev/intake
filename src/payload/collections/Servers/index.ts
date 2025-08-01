@@ -46,6 +46,15 @@ export const Servers: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'name',
+    components: {
+      edit: {
+        beforeDocumentControls: [
+          {
+            path: '@/payload/collections/Servers/custom/InstallMonitoringTools.tsx',
+          },
+        ],
+      },
+    },
   },
   access: {
     read: isAdmin,
@@ -58,7 +67,7 @@ export const Servers: CollectionConfig = {
     afterRead: [
       populateServerDetails,
       nextBillingDateAfterRead,
-      // populateIntakeVpsDetails,
+      // populateDflowVpsDetails,
     ],
   },
   fields: [
@@ -373,8 +382,8 @@ export const Servers: CollectionConfig = {
           value: 'azure',
         },
         {
-          label: 'inTake',
-          value: 'intake',
+          label: 'dFlow',
+          value: 'dflow',
         },
         {
           label: 'Other',
@@ -550,11 +559,11 @@ export const Servers: CollectionConfig = {
       ],
     },
     {
-      name: 'intakeVpsDetails',
+      name: 'dflowVpsDetails',
       type: 'group',
       admin: {
-        condition: data => data.provider === 'intake',
-        description: 'inTake Vps details',
+        condition: data => data.provider === 'dflow',
+        description: 'dFlow Vps details',
         position: 'sidebar',
       },
       fields: [
@@ -658,15 +667,15 @@ export const Servers: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description:
-          'Number of times connection to the server has been attempted (INTake only).',
-        condition: data => data.provider === 'intake',
+          'Number of times connection to the server has been attempted (DFlow only).',
+        condition: data => data.provider === 'dflow',
       },
       hooks: {
         beforeValidate: [
           args => {
             const { value, data } = args || {}
 
-            return data?.provider === 'intake' ? (value ?? 0) : undefined
+            return data?.provider === 'dflow' ? (value ?? 0) : undefined
           },
         ],
       },
