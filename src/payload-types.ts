@@ -613,8 +613,8 @@ export interface CloudProviderAccount {
   id: string;
   tenant?: (string | null) | Tenant;
   name: string;
-  type: 'inTakee' | 'aws' | 'azure' | 'gcp' | 'digitalocean';
-  inTakeeDetails?: {
+  type: 'inTake' | 'aws' | 'azure' | 'gcp' | 'digitalocean';
+  inTakeDetails?: {
     accessToken: string;
   };
   awsDetails?: {
@@ -1648,7 +1648,7 @@ export interface CloudProviderAccountsSelect<T extends boolean = true> {
   tenant?: T;
   name?: T;
   type?: T;
-  inTakeeDetails?:
+  inTakeDetails?:
     | T
     | {
         accessToken?: T;

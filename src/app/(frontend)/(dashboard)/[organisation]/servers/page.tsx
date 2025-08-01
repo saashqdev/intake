@@ -9,7 +9,6 @@ import RefreshButton from '@/components/RefreshButton'
 import ServerTerminalClient from '@/components/ServerTerminalClient'
 import SidebarToggleButton from '@/components/SidebarToggleButton'
 import ServerCard from '@/components/servers/ServerCard'
-import SyncINTake from '@/components/servers/SyncINTake'
 import {
   CreateServerButtonSkeleton,
   ServersSkeleton,
@@ -107,7 +106,7 @@ const ServersPage = async ({ params, searchParams }: PageProps) => {
           <RefreshButton />
 
           <Suspense fallback={<CreateServerButtonSkeleton />}>
-            <SyncINTake />
+            {/* <SyncINTake /> Dave commented */}
 
             <Link href={`/${syncParams.organisation}/servers/add-new-server`}>
               <Button variant={'default'}>
