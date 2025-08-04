@@ -77,9 +77,9 @@ export const getActionAccess = {
   removeUserFromTeamAction: ['team.delete'],
   generateInviteLinkAction: ['team.update'],
 
-  // inTake cloud actions
+  // dFlow cloud actions
   getCloudProvidersAccountsAction: ['cloudProviderAccounts.read'],
-  syncIntakeServersAction: [
+  syncDflowServersAction: [
     'servers.read',
     'servers.create',
     'cloudProviderAccounts.read',
@@ -93,7 +93,7 @@ export const getActionAccess = {
   ],
   checkPaymentMethodAction: ['cloudProviderAccounts.read'],
   deleteDFlowAccountAction: ['cloudProviderAccounts.delete'],
-  getIntakeUser: ['cloudProviderAccounts.read'],
+  getDflowUser: ['cloudProviderAccounts.read'],
   updateDFlowAccountAction: ['cloudProviderAccounts.update'],
 
   // AWS cloud actions
@@ -207,9 +207,6 @@ export const getActionAccess = {
   startTerminalAction: ['servers.read'],
   stopTerminalAction: ['servers.read'],
   restartTerminalAction: ['servers.read'],
-
-  // Impersonate Action
-  impersonateUserAction: [],
 } as const
 
 export type GetActionAccessMap = typeof getActionAccess

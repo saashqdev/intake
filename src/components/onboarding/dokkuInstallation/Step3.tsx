@@ -49,18 +49,6 @@ const Step3 = ({ server }: { server: ServerType }) => {
     },
   })
 
-  const plugins = server?.plugins || []
-  const letsEncryptPluginInstalled = plugins.find(
-    plugin => plugin.name === 'letsencrypt',
-  )
-
-  const letsEncryptPluginConfigurationEmail =
-    letsEncryptPluginInstalled &&
-    letsEncryptPluginInstalled.configuration &&
-    typeof letsEncryptPluginInstalled.configuration === 'object' &&
-    !Array.isArray(letsEncryptPluginInstalled.configuration) &&
-    letsEncryptPluginInstalled.configuration.email
-
   const handlePluginsSync = async () => {
     // syncing plugins
     const pluginsData = await syncPlugins({ serverId: server.id })
@@ -84,6 +72,18 @@ const Step3 = ({ server }: { server: ServerType }) => {
   // sync plugins & configure letsencrypt global-email
   useEffect(() => {
     if (dokkuInstallationStep === 3) {
+      const plugins = server?.plugins || []
+      const letsEncryptPluginInstalled = plugins.find(
+        plugin => plugin.name === 'letsencrypt',
+      )
+
+      const letsEncryptPluginConfigurationEmail =
+        letsEncryptPluginInstalled &&
+        letsEncryptPluginInstalled.configuration &&
+        typeof letsEncryptPluginInstalled.configuration === 'object' &&
+        !Array.isArray(letsEncryptPluginInstalled.configuration) &&
+        letsEncryptPluginInstalled.configuration.email
+
       // 1. check if plugins synced or not
       if (!letsEncryptPluginInstalled) {
         handlePluginsSync()
@@ -102,6 +102,13 @@ const Step3 = ({ server }: { server: ServerType }) => {
         !triggeringLetsencryptPluginConfiguration &&
         !triggeredLetsencryptPluginConfiguration
       ) {
+        console.log({
+          letsEncryptPluginInstalled,
+          letsEncryptPluginConfigurationEmail,
+          triggeringLetsencryptPluginConfiguration,
+          triggeredLetsencryptPluginConfiguration,
+        })
+
         configureLetsencrypt({
           serverId: server.id,
           autoGenerateSSL: true,
@@ -109,6 +116,18 @@ const Step3 = ({ server }: { server: ServerType }) => {
       }
     }
   }, [dokkuInstallationStep, JSON.stringify(server)])
+
+  const plugins = server?.plugins || []
+  const letsEncryptPluginInstalled = plugins.find(
+    plugin => plugin.name === 'letsencrypt',
+  )
+
+  const letsEncryptPluginConfigurationEmail =
+    letsEncryptPluginInstalled &&
+    letsEncryptPluginInstalled.configuration &&
+    typeof letsEncryptPluginInstalled.configuration === 'object' &&
+    !Array.isArray(letsEncryptPluginInstalled.configuration) &&
+    letsEncryptPluginInstalled.configuration.email
 
   return dokkuInstallationStep >= 3 ? (
     <div className='space-y-2'>
