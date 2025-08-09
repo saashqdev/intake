@@ -25,12 +25,6 @@ export const getActionAccess = {
     'projects.read',
     'securityGroups.read',
   ],
-  installMonitoringToolsAction: [
-    'servers.read',
-    'projects.read',
-    'projects.create',
-    'services.create',
-  ],
 
   // Plugin actions
   installPluginAction: ['servers.update'],
@@ -38,6 +32,7 @@ export const getActionAccess = {
   togglePluginStatusAction: ['servers.update'],
   deletePluginAction: ['servers.update'],
   configureLetsencryptPluginAction: ['servers.update'],
+  installAndConfigureLetsencryptPluginAction: ['servers.update'],
 
   // Templates actions
   getTemplateByIdAction: ['templates.read'],
@@ -207,6 +202,14 @@ export const getActionAccess = {
   startTerminalAction: ['servers.read'],
   stopTerminalAction: ['servers.read'],
   restartTerminalAction: ['servers.read'],
+
+  // Beszel Actions
+  installMonitoringToolsAction: [
+    'servers.read',
+    'projects.read',
+    'projects.create',
+    'services.create',
+  ],
 } as const
 
 export type GetActionAccessMap = typeof getActionAccess

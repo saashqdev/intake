@@ -67,7 +67,7 @@ export const createTemplateAction = protectedClient
       data: {
         name,
         description,
-        services,
+        services: services as Template['services'],
         imageUrl,
         tenant: userTenant.tenant,
       },
@@ -196,7 +196,7 @@ export const getAllOfficialTemplatesAction = publicClient
 
     if (type === 'official') {
       const res = await fetch(
-        'https://intake.sh/api/templates?where[type][equals]=official',
+        'https://dflow.sh/api/templates?where[type][equals]=official',
       )
 
       if (!res.ok) {
@@ -209,7 +209,7 @@ export const getAllOfficialTemplatesAction = publicClient
 
     if (type === 'community') {
       const res = await fetch(
-        'https://intake.sh/api/templates?where[type][equals]=community',
+        'https://dflow.sh/api/templates?where[type][equals]=community',
       )
 
       if (!res.ok) {
@@ -250,7 +250,7 @@ export const getOfficialTemplateByIdAction = publicClient
   .action(async ({ clientInput }) => {
     const { templateId } = clientInput
 
-    const res = await fetch(`https://intake.sh/api/templates/${templateId}`)
+    const res = await fetch(`https://dflow.sh/api/templates/${templateId}`)
 
     if (!res.ok) {
       throw new Error('Failed to fetch template details')

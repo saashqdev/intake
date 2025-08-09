@@ -1,3 +1,4 @@
+import { ArrowUpRight } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -7,9 +8,20 @@ import { getIntakeUser } from '@/actions/cloud/inTake'
 import { getGithubStarsAction } from '@/actions/github'
 import Banner from '@/components/Banner'
 import DocSidebar from '@/components/DocSidebar'
+import Logo from '@/components/Logo'
+import ToggleTheme from '@/components/ToggleTheme'
 import { Github } from '@/components/icons'
 import { NavUser } from '@/components/nav-user'
 import { NavUserSkeleton } from '@/components/skeletons/DashboardLayoutSkeleton'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { getCurrentUser } from '@/lib/getCurrentUser'
 import Provider from '@/providers/Provider'
 
@@ -35,11 +47,10 @@ const DashboardLayoutInner = async ({
 }: {
   params: PageProps['params']
 }) => {
-  const organisationSlug = (await params).organisation
-
   const result = await getGithubStarsAction()
   const intakeUser = await getIntakeUser()
   const hasClaimedCredits = intakeUser?.data?.user?.hasClaimedFreeCredits
+  const organisationSlug = (await params).organisation
 
   return (
     <div className='sticky top-0 z-50 w-full bg-background'>
@@ -48,18 +59,11 @@ const DashboardLayoutInner = async ({
           <Link
             href={`/${organisationSlug}/dashboard`}
             className='flex items-center gap-1'>
-            <Image
-              src='/images/intake-no-bg.png'
-              alt='inTake-logo'
-              width={32}
-              height={32}
-              className='object-contain'
-            />
-            <p className='hidden sm:block'>inTake</p>
+            <Logo showText />
           </Link>
 
           {/* Breadcrumb placeholders */}
-          <div id='projectName'></div>
+          <div id='projectName' />
           <div id='serviceName' className='-ml-2' />
           <div id='serverName' className='-ml-4' />
         </div>
@@ -68,16 +72,19 @@ const DashboardLayoutInner = async ({
           <Link
             target='_blank'
             rel='noopener noreferrer'
-            className='inline-flex items-center gap-x-1 transition-colors duration-300 hover:text-muted-foreground'
-            href='https://github.com/saashqdev/intake'>
+            className='hidden items-center gap-x-1 transition-colors duration-300 hover:text-muted-foreground md:inline-flex'
+            href='https://github.com/akhil-naidu/intake'>
             <Github width='1.25em' height='1.25em' />{' '}
             {result?.data?.stars ? result?.data?.stars : 0}
           </Link>
 
-          {/*           {!hasClaimedCredits && (
+          {!hasClaimedCredits && (
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant={'ghost'} size={'icon'} className='w-full p-1'>
+                <Button
+                  variant={'ghost'}
+                  size={'icon'}
+                  className='hidden w-full p-1 md:block'>
                   <Image
                     src={'/images/gift.png'}
                     width={100}
@@ -87,6 +94,7 @@ const DashboardLayoutInner = async ({
                   />
                 </Button>
               </DialogTrigger>
+
               <DialogContent>
                 <div>
                   <Image
@@ -116,7 +124,9 @@ const DashboardLayoutInner = async ({
                 </div>
               </DialogContent>
             </Dialog>
-          )} Dave commented */}
+          )}
+
+          <ToggleTheme />
 
           <Suspense fallback={<NavUserSkeleton />}>
             <NavUserSuspended />

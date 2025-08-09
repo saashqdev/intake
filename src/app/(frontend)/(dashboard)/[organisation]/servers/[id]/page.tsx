@@ -33,8 +33,7 @@ import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServ
 import ProvisioningBanner from '@/components/servers/ProvisioningBanner'
 import ServerDetails from '@/components/servers/ServerDetails'
 import UpdateTailscaleServerForm from '@/components/servers/UpdateTailscaleServerForm'
-import Monitoring from '@/components/servers/monitoring/Monitoring'
-import NetdataInstallPrompt from '@/components/servers/monitoring/NetdataInstallPrompt'
+import MonitoringTab from '@/components/servers/monitoring/MonitoringTab'
 import ServerOnboarding from '@/components/servers/onboarding/ServerOnboarding'
 import {
   DomainsTabSkeleton,
@@ -149,29 +148,6 @@ const GeneralTab = ({ server }: { server: ServerType }) => {
         </div>
 
         <ProjectsAndServicesSection projects={projects} />
-      </div>
-    </div>
-  )
-}
-
-const MonitoringTab = ({
-  server,
-  isSshConnected,
-}: {
-  server: ServerType
-  isSshConnected: boolean
-}) => {
-  return (
-    <div className='space-y-6'>
-      <div className='space-y-4'>
-        {!server.netdataVersion ? (
-          <NetdataInstallPrompt
-            server={server}
-            disableInstallButton={!isSshConnected}
-          />
-        ) : (
-          <Monitoring server={server} />
-        )}
       </div>
     </div>
   )
@@ -374,16 +350,16 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
   // Get complete server status logic
   const getServerStatus = (server: ServerType) => {
-    const isIntake = server?.provider?.toLowerCase() === 'intake'
-    const intakeStatus = server.intakeVpsDetails?.status
+    const isDflow = server?.provider?.toLowerCase() === 'dflow'
+    const dflowStatus = server.dflowVpsDetails?.status
     const connectionAttempts = server.connectionAttempts ?? 0
     const connectionStatus = server.connection?.status || 'unknown'
     const isConnected = connectionStatus === 'success'
     const isOnboarded = server.onboarded === true
     const isCloudInitRunning = server.cloudInitStatus === 'running'
 
-    // 1. INTake provisioning state
-    if (isIntake && intakeStatus === 'provisioning') {
+    // 1. DFlow provisioning state
+    if (isDflow && dflowStatus === 'provisioning') {
       return {
         type: 'provisioning' as const,
         bannerProps: {
@@ -392,10 +368,10 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       }
     }
 
-    // 2. INTake connecting state (attempting to connect)
+    // 2. DFlow connecting state (attempting to connect)
     if (
-      isIntake &&
-      intakeStatus === 'running' &&
+      isDflow &&
+      dflowStatus === 'running' &&
       connectionAttempts < 30 &&
       connectionStatus === 'not-checked-yet'
     ) {
@@ -409,8 +385,8 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
     // 3. Connection error state (30+ attempts failed)
     if (
-      isIntake &&
-      intakeStatus === 'running' &&
+      isDflow &&
+      dflowStatus === 'running' &&
       connectionAttempts >= 30 &&
       connectionStatus === 'not-checked-yet'
     ) {
@@ -422,7 +398,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       }
     }
 
-    // 4. Disconnected state (non-INTake or general connection failure)
+    // 4. Disconnected state (non-DFlow or general connection failure)
     if (!isConnected) {
       return {
         type: 'disconnected' as const,
@@ -513,7 +489,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
   const serverStatus = getServerStatus(server)
 
   const renderContent = () => {
-    // 1. Show provisioning banner for INTake provisioning state
+    // 1. Show provisioning banner for DFlow provisioning state
     if (serverStatus.type === 'provisioning') {
       return (
         <BannerLayout server={server}>
@@ -524,7 +500,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       )
     }
 
-    // 2. Show connection attempts banner for INTake connecting state
+    // 2. Show connection attempts banner for DFlow connecting state
     if (serverStatus.type === 'connecting') {
       return (
         <BannerLayout server={server}>
